@@ -7,7 +7,7 @@ import (
 	 "test/services"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	//uuid"github.com/satori/go.uuid"
+	uuid"github.com/satori/go.uuid"
 	
 )
 
@@ -21,96 +21,93 @@ func main(){
 	}else{
 			fmt.Println("connected to db")
 	}
-	//CreateTable(db)
+	CreateTable(db)
 	repository := repo.NewRepository()
 	userServices:=services.NewUserService(repository)
-	// var hobbies = []model.Hobby{{HobbyID: uuid.NewV4(), HobbyName: "sports"},
-	// 							{HobbyID: uuid.NewV4(), HobbyName: "cooking"},
-	// 						    }
-	// 		// //add users
-	// user:=model.NewUser(uuid.NewV4(),"neha",hobbies)
+	var hobbies = []model.Hobby{{CustomModel:model.CustomModel{ID: uuid.NewV4()}, HobbyName: "sports"},
+								{CustomModel:model.CustomModel{ID: uuid.NewV4()}, HobbyName: "cooking"},
+							    }
+			//add users
+	user:=model.NewUser("pooja",hobbies)
 	
-	// userServices.AddUser(db,user)
+	userServices.AddUser(db,user)
 	userServices.GetUser(db)
-	// //get  all users
-	// var users []model.User
-	// var str1 = []string{ "Courses","Hobbies"}
-	// userServices.GetUsers(db,&users, str1)
-	// fmt.Println(users)
+	//get  all users
+	var users []model.User
+	var str1 = []string{ "Courses","Hobbies"}
+	userServices.GetUsers(db,&users, str1)
+	fmt.Println(users)
 
-	// // //get user from id 
+	// //get user from id 
 	// var user model.User
 
-	// Id1,_:= uuid.FromString("a5825339-2116-44b0-ba4e-29b8a5537032")
+	// Id1,_:= uuid.FromString("2ce504bc-03bc-4610-9a9d-60e97d831926")
 	// userServices.GetUserFromId(db,&user,Id1,str1)
 
 	// fmt.Println(user)
 
-	// // //upddate user
-	// id2, _ := uuid.FromString("a5825339-2116-44b0-ba4e-29b8a5537032")
-	// var userToBeUpdated model.User
-	// var str = []string{"Courses", "Hobbies"}
-	// userServices.GetUserFromId(db,&userToBeUpdated, id2, str)
-	// userToBeUpdated.UserName = "pooja"
-	// userServices.UpdateUser(db,userToBeUpdated)	
-	// fmt.Println(userToBeUpdated)
+	// //update user
+	id2, _ := uuid.FromString("2ce504bc-03bc-4610-9a9d-60e97d831926")
+	var userToBeUpdated model.User
+	var str = []string{"Courses", "Hobbies"}
+	userServices.GetUserFromId(db,&userToBeUpdated, id2, str)
+	userToBeUpdated.UserName = "neha"
+	userServices.UpdateUser(db,userToBeUpdated)	
+	fmt.Println(userToBeUpdated)
 
 
-	// //delete user 
-	// id3, _ := uuid.FromString("43de5934-3dc1-49de-aead-0576b2ace1a1")
-	// var userToBeDeleted model.User
-	// var str2 = []string{"Courses", "Hobbies"}
-	// userServices.GetUserFromId(db,&userToBeDeleted, id3, str2)
-	// userServices.DeleteUser(db,userToBeDeleted)
-	// fmt.Println(userToBeDeleted)
+	//delete user 
+	id3, _ := uuid.FromString("2ce504bc-03bc-4610-9a9d-60e97d831926")
+	var userToBeDeleted model.User
+	var str2 = []string{"Courses", "Hobbies"}
+	userServices.GetUserFromId(db,&userToBeDeleted, id3, str2)
+	userServices.DeleteUser(db,userToBeDeleted)
+	fmt.Println(userToBeDeleted)
 	
 	//**********************************************************************//
-// 	 courseServices:=services.NewCourseService(repository)
-// 	// //add courses
-// 	// course:=model.NewCourse("golang",uuid.NewV4())
 
-// 	// courseServices.AddCourse(db,course)
-// 	// err2:=db.Debug().Model(course).Association("Users").Error
-// 	// if err2!=nil{
-// 	// 	fmt.Println("error in association------>",err2)
-// 	// }
+	courseServices:=services.NewCourseService(repository)
+	//add courses
+	course:=model.NewCourse("golang")
 
-
-// 	//get  all coursess
-// 	var courses []model.Course
-// 	var str11 []string
-// 	courseServices.GetCourses(db,&courses, str11)
-// 	fmt.Println(courses)
-
-// 	//get course from id 
-// 	 var course1 model.Course
-
-// 	 Id11,_:= uuid.FromString("450c14bf-ddae-45d4-a03a-4a92a3e4bb14")
-// 	 courseServices.GetCourseFromId(db,&course1,Id11,str11)
-
-// 	 fmt.Println(course1)
-
-// 	// //upddate course
-
-// 	var courseToBeUpdated model.Course
-// 	id22, _ := uuid.FromString("450c14bf-ddae-45d4-a03a-4a92a3e4bb14")
-// 	courseServices.GetCourseFromId(db,&courseToBeUpdated, id22, str11)
-// 	courseToBeUpdated.CourseName = "golang"
-// 	courseServices.UpdateCourse(db,courseToBeUpdated)	
-// 	fmt.Println(courseToBeUpdated)
+	courseServices.AddCourse(db,course)
+	err2:=db.Debug().Model(course).Association("Users").Error
+	if err2!=nil{
+		fmt.Println("error in association------>",err2)
+	}
 
 
-// // 	// //delete course
-// 	id33, _ := uuid.FromString("450c14bf-ddae-45d4-a03a-4a92a3e4bb14")
-// 	var courseToBeDeleted model.Course
-// 	courseServices.GetCourseFromId(db,&courseToBeDeleted, id33, str11)
-// 	courseServices.DeleteCourse(db,courseToBeDeleted)
-// 	fmt.Println(courseToBeDeleted)
-	
+	//get  all coursess
+	var courses []model.Course
+	 var str11 []string
+	courseServices.GetCourses(db,&courses, str11)
+	fmt.Println(courses)
 
-	
+	//get course from id 
+	 var course1 model.Course
 
-// // }
+	 Id11,_:= uuid.FromString("b18a7c11-ed9f-4172-88ea-f620bf2e8171")
+	 courseServices.GetCourseFromId(db,&course1,Id11,str11)
+
+	 fmt.Println(course1)
+
+	// //upddate course
+
+	var courseToBeUpdated model.Course
+	id22, _ := uuid.FromString("b18a7c11-ed9f-4172-88ea-f620bf2e8171")
+	courseServices.GetCourseFromId(db,&courseToBeUpdated, id22, str11)
+	courseToBeUpdated.CourseName = "golang"
+	courseServices.UpdateCourse(db,courseToBeUpdated)	
+	fmt.Println(courseToBeUpdated)
+
+
+ 	// //delete course
+	id33, _ := uuid.FromString("450c14bf-ddae-45d4-a03a-4a92a3e4bb14")
+	var courseToBeDeleted model.Course
+	courseServices.GetCourseFromId(db,&courseToBeDeleted, id33, str11)
+	courseServices.DeleteCourse(db,courseToBeDeleted)
+	fmt.Println(courseToBeDeleted)
+
 }
 func CreateTable(db *gorm.DB){
 	db.AutoMigrate(&model.User{})

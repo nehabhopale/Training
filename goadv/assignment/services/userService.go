@@ -55,7 +55,7 @@ func (u *UserService)GetUser(db *gorm.DB){
 }
 func (u *UserService)GetUserFromId(db *gorm.DB, out interface{}, ID uuid.UUID, preloadAssociations []string)  {
 	uow:=repo.NewUnitOfWork(db,true)
-	err:=u.Repo.Get(uow,out,ID,preloadAssociations,"user_id")
+	err:=u.Repo.Get(uow,out,ID,preloadAssociations,"id")
 	if err!=nil{
 		uow.Complete()		//complete will rollback operation
 		fmt.Println("error while getting user from id---->",err)

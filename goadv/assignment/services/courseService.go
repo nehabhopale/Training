@@ -40,7 +40,7 @@ func (c *CourseService) GetCourses(db *gorm.DB,	out *[]model.Course, preloadAsso
 
 func (c *CourseService) GetCourseFromId(db *gorm.DB,out *model.Course, ID uuid.UUID, preloadAssociations []string)  {
 	uow:=repo.NewUnitOfWork(db,true)
-	err:=c.Repo.Get(uow,out,ID,preloadAssociations,"course_id")
+	err:=c.Repo.Get(uow,out,ID,preloadAssociations,"id")
 	if err!=nil{
 		uow.Complete()		//complete will rollback operation
 		fmt.Println("error while getting course from id>-->",err)
@@ -68,6 +68,3 @@ func (c *CourseService) DeleteCourse(db *gorm.DB,entity model.Course)  {
 	uow.Commit()
 }
 
-func (s *CourseService) GetCourseFromName(db *gorm.DB,out *model.Course, name string)  {
-	
-}

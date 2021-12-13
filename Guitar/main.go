@@ -73,8 +73,10 @@ func main(){
 	k1:=&guitar.GuitarSpecs{}
 	k1.SetModel("model1")
 	k1.SetBuilder(guitar.Fender)
+	k1.SetNoOfStrings(11)
 	k2:=guitar.NewGuitar("1",300,k1)
 	shop.SearchGuitar(k2)
+	
 	
 	
 

@@ -29,7 +29,7 @@ func (g *Game) Play(){
 	g.currentPlayer=g.players[0]
 	
 	for ok := true; ok; ok = (status==result.InProgress){
-		fmt.Printf("enter row for %s ",g.currentPlayer.GetName())
+		fmt.Printf("enter row  and col for %s ",g.currentPlayer.GetName())
 		_, err := fmt.Scanln(&row,&col)
 		if err!=nil{
 			fmt.Println(err)

@@ -1,5 +1,5 @@
 package guitar
-
+import "fmt"
 type Builder string
 const(
 	Fender Builder ="fender"
@@ -21,7 +21,7 @@ type WoodType string
 
 const(
 	Accoustic WoodType="accoustic"
-	Electric WoodType="accoustic"
+	Electric WoodType="electric"
 )
 
 type Guitar struct{
@@ -47,3 +47,14 @@ func NewGuitar(serialNo string,price uint16,specs *GuitarSpecs)*Guitar{
 	}
 }
 
+func (g Guitar)DisplayGuitar(){
+	fmt.Println("*********************")
+	fmt.Println(g.serialNo)
+	fmt.Println(g.price)
+	fmt.Println(g.GetSpecs().GetModel())
+	fmt.Println(g.GetSpecs().GetBuilder())
+	fmt.Println(g.GetSpecs().GetWoodType())
+	fmt.Println(g.GetSpecs().GetBackWood())
+	fmt.Println(g.GetSpecs().GetFrontWood())
+	fmt.Println(g.GetSpecs().GetNoOfStrings())
+}

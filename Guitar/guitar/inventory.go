@@ -70,7 +70,9 @@ func(I *Inventory)SearchGuitar( g *Guitar){
 		fmt.Println(j)
 			
 	}
-	fmt.Println(resultGuitar)
+	for _,guitar:=range(resultGuitar){
+		guitar.DisplayGuitar()
+	}
 
 }
 

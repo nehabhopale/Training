@@ -3,7 +3,8 @@ package resultanalyzer
 import("tictac/result"
 "tictac/mark"
 "tictac/board"
-"fmt"
+//"fmt"
+
 )
 
 type Resultanalyzer struct{
@@ -20,7 +21,7 @@ func( r *Resultanalyzer ) Analyze() result.Result{
 	
 	if r.board.IsFull(){
 		return result.Draw
-	}else if r.checkRowsForResult() || r.checkColsForResult()||r.checkDiagonals(){
+	}else if r.checkRowsForResult() || r.checkColsForResult()||r.checkDiagonal1()||r.checkDiagonal2(){
 		return result.Winner
 	}
 	return result.InProgress
@@ -43,53 +44,107 @@ func( r *Resultanalyzer ) Analyze() result.Result{
 // }
 func(r *Resultanalyzer) checkRowsForResult()bool{
 	
-	var rowEntry mark.Mark
-	for i:=0;i<3;i++{
-		rowEntry=r.board.Get(i,0)
-		if rowEntry!=mark.Empty{
-			if(r.board.Get(i,0)==r.board.Get(i,1))&&(r.board.Get(i,1)==r.board.Get(i,2))&&(r.board.Get(i,0)==rowEntry){
-				fmt.Println("rows",r.board.Get(i,0))
-				return true
-			} 
+	var rowFirstEntry mark.Mark
+	var i uint8
+	size:=r.board.GetSize()
+	for i=0;i<size*size;i+=size{
+		
+		var count uint8 =0
+		rowFirstEntry=r.board.GetAt(i)
+		if rowFirstEntry !=mark.Empty{
+			//fmt.//Println("i",i)
+			for j:=i+1;j<size*size;j++{
+				//fmt.Println("j",j)
+				if r.board.GetAt(j)==rowFirstEntry{
+					count++
+				}else{
+					break
+				}
+				
+			}
+			//fmt.Println("outside loop ",count)
+			if count==(size-1){
+				//fmt.Println("inside row",count)
+				return true 
+			}
+		}else{
+			continue
 		}
 	}
 	return false
 }
 func(r Resultanalyzer) checkColsForResult()bool{
 	
-	var colEntry mark.Mark
-	for i:=0;i<3;i++{
-		colEntry=r.board.Get(0,i)
-		if colEntry!=mark.Empty{
-			if(r.board.Get(0,i)==r.board.Get(1,i))&&(r.board.Get(1,i)==r.board.Get(2,i))&&(r.board.Get(0,i)==colEntry){
-				fmt.Println("cols",r.board.Get(0,i))
-				return true
-			} 
+	var colFirstEntry mark.Mark
+	var i uint8
+	size:=r.board.GetSize()
+	for i=0;i<size;i++{
+		colFirstEntry=r.board.GetAt(i)
+		if colFirstEntry !=mark.Empty{
+			var count uint8 =0
+			for j:=i+size;j<size*size;j+=size{
+				if r.board.GetAt(j)==colFirstEntry{
+					count++
+				}else{
+					break
+				}
+			}
+			if count==size-1{
+				//fmt.Println("inside row",count)
+				return true 
+			}
 		}
 	}
 	return false
 
 	
 }
-func(r Resultanalyzer) checkDiagonals() bool{
-
-	
-	diag1:=r.board.Get(0,0)
-	if diag1!=mark.Empty{
-		if (r.board.Get(0, 0) == r.board.Get(1, 1)) && (r.board.Get(1, 1) == r.board.Get(2, 2) )&& (r.board.Get(0, 0) ==diag1){
-			fmt.Println("diag1",r.board.Get(0,0))	
-			return true
+func(r Resultanalyzer) checkDiagonal1() bool{
+	diag1Entry:=r.board.GetAt(0)
+	size :=r.board.GetSize()
+	var c uint8 =size+1
+	var i uint8
+	var count uint8 =0
+	for i = 1; i <r.board.GetSize(); i++ {
+		if diag1Entry== r.board.GetAt(i*c) && (diag1Entry!=mark.Empty){
+			count++
 		}
 	}
-	diag2:=r.board.Get(0,2)
-	if diag2!=mark.Empty{
-		if (r.board.Get(2, 0) == r.board.Get(1, 1)) &&(r.board.Get(1, 1) == r.board.Get(0, 2) )&& (r.board.Get(2, 0) ==diag2){
-			fmt.Println("diag2",r.board.Get(2,0))
-			return true
+	// for i:=size+1;i<size*size;i+=(size+1){
+	// 		if (r.board.GetAt(i)==diag1Entry )&& (diag1Entry!=mark.Empty) {
+	// 			count++
+	// 		}
+	// }
+	if count==size-1{
+		//fmt.Println("inside diag1",count)
+			return true 
+	}
+	return false 
+
+}
+func(r Resultanalyzer) checkDiagonal2() bool{
+	size :=r.board.GetSize()
+	var i uint8
+	diag2Entry:=r.board.GetAt(size-1)
+	var count uint8 =0
+	// for i:=size+1;i<size*size;i+=(size-1){
+	// 		fmt.Println("i in diag2",i)
+	// 		if (r.board.GetAt(i)==diag2Entry )&& (diag2Entry!=mark.Empty){
+	// 			count++
+	// 		}
+	// }
+	var c uint8 =size-1
+	for i = 2; i <=r.board.GetSize(); i++ {
+		if diag2Entry== r.board.GetAt(i*c) && (diag2Entry!=mark.Empty){
+			count++
 		}
 	}
 
-	return false
+	if count==size-1{
+		//fmt.Println("inside diag2",count)
+			return true 
+	}
+	return false 
 }
 
 

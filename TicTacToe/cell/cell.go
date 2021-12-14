@@ -11,7 +11,7 @@ func(c *Cell)GetMark() mark.Mark{
 	return c.mark
 }
 func (c *Cell)SetMark(value mark.Mark){
-	if value==" "{
+	if value==mark.Empty{
 	 	fmt.Println("mark can't be empty")
 	}
 	c.mark=value

@@ -6,38 +6,45 @@ import ("tictac/cell"
 )
 
 type Board struct{
-	cells [][]*cell.Cell
+	cells []*cell.Cell
+	size uint8
 
 }
-func NewBoard() *Board {
-	cells := make([][] *cell.Cell,3)
-	for i := 0; i < 3; i++ {
-		cells[i]=make([]*cell.Cell,3)
-		for j:=0;j<3;j++{
-			cells[i][j] = cell.NewCell(mark.Empty)	
-		}
-		
+func NewBoard(size uint8) *Board {
+	cells := make([]*cell.Cell, size*size)
+	for i := 0; i < int(size)*int(size); i++ {
+		cells[i] = cell.NewCell(mark.Empty)
 	}
 	return &Board{
-		cells: cells,	
+		cells: cells,
+		size:  size,
 	}
 }
+func (b *Board)GetSize()uint8{
+	return b.size
+}
+func (b *Board)GetAt(pos uint8)mark.Mark{
+	return b.cells[pos].GetMark()
+}
 func (b *Board)PrintBoard(){
-	for i:=0;i<3;i++{
-		for j:=0;j<3;j++{
-			fmt.Print(*b.cells[i][j])
+	s := int(b.size)
+	count := 1
+	for i := 0; i < s*s; i++ {
+		fmt.Printf("%v", *b.cells[i])
+		count++
+		if count > s {
+			fmt.Println()
+			count = 1
 		}
-		fmt.Println()
 	}
 }
 func(b *Board)IsEmpty() bool{
 	cellsEmpty := true
-	for  i := 0; i < 3; i++ {
-		for j:=0;j<3;j++{
-			if b.cells[i][j].GetMark() != mark.Empty{
+	var i uint8
+	for  i = 0; i < b.size*b.size; i++ {
+			if b.cells[i].GetMark() != mark.Empty{
 				cellsEmpty = false
 			}
-		}
 	}
 
 	return cellsEmpty
@@ -46,44 +53,46 @@ func(b *Board)IsEmpty() bool{
 
 func(b *Board)IsFull() bool {
 	cellsFull:=true
-	for i := 0; i < 3; i++ {
-		for j:=0;j<3;j++{
-			if (b.cells[i][j].GetMark()== mark.Empty){
+	var i uint8
+	for i = 0; i < b.size*b.size; i++ {	
+			if (b.cells[i].GetMark()== mark.Empty){
 				cellsFull=false
 			}
-		}
 	}
 
 	return cellsFull
 }
 
-func(b *Board)Set(row int, col int , mark1 mark.Mark) {
-	if b.cells[row][col].GetMark() !=mark.Empty{
-		fmt.Println("its an occupied position give a try in next move")
+func(b *Board)Set(row uint8, col uint8 , mark1 mark.Mark) {
+	cellLocation:=getLocation(row,col,b.size)
+	fmt.Println("location is ",cellLocation)
+	if b.cells[cellLocation].GetMark() !=mark.Empty{
+		fmt.Println("its an occupied position give a try in next move.Its a turn of  ",b.cells[cellLocation].GetMark())
 	}
-	if   b.cells[row][col].GetMark() ==mark.Empty && checkLocation(row, col){
-		b.cells[row][col].SetMark(mark1)
+	if  b.cells[cellLocation].GetMark() ==mark.Empty && getLocation(row, col,b.size)!=90{
+		
+		b.cells[cellLocation].SetMark(mark1)
 	}
 }
 
-func (b *Board)Get(row int, col int) mark.Mark {
-	
-	return b.cells[row][col].GetMark()
+func (b *Board)Get(row uint8, col uint8) mark.Mark {
+	cellLocation:=getLocation(row,col,b.size)
+	return b.cells[cellLocation].GetMark()
 }
 
-func checkLocation(row int, col int ) bool {
-	if (row > 2 || row < 0){
+func getLocation(row uint8, col uint8,n uint8 ) uint8 {
+	if (row > (n-1)){
 		fmt.Println("please enter valid rows ")
-		return false
+		return 90
 
 	}
 
-	if (col > 2 || col < 0){
+	if (col > (n-1) ){
 		fmt.Println("please enter valid columns ")
-		return false
+		return 90
 		
 	}
 		
-	return true
+	return row*n+col
 
 }

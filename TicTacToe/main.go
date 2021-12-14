@@ -13,7 +13,7 @@ func main(){
 	var players []*player.Player
 	players = append(players, playerA)
 	players = append(players, playerB)
-	board1:=board.NewBoard()
+	board1:=board.NewBoard(4)
 	resultanalyzer1:=resultanalyzer.NewAnalyzer(board1)
 
 	currentPlayer:=playerA

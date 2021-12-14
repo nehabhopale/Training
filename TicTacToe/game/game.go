@@ -23,8 +23,8 @@ func NewGame(players []*player.Player,currentPlayer *player.Player,board *board.
 }
 
 func (g *Game) Play(){
-	var row int
-	var col int
+	var row uint8
+	var col uint8
 	var status result.Result
 	g.currentPlayer=g.players[0]
 	

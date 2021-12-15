@@ -68,10 +68,15 @@ func main() {
 
     }()
 	wg.Add(25)
-    for i := 0; i < 25; i++ {
+    // for i := 0; i < 25; i++ {
 
-        go getJoke(i)
-    }
+    //     go getJoke(i)
+    // }
+	var i int
+	for i = 0; i < 25; i++ {
+		go getJoke1(i)
+	}
+
 	wg.Wait()
 	fmt.Println(mapp)
 }

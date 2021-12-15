@@ -21,9 +21,7 @@ type Hobby struct{
 
 func CreateTable(db *gorm.DB){
 	db.Table("hobbies").DropTable(db)
-	 db.Table("students").DropTable(db)
-	
-
+	db.Table("students").DropTable(db)
  	db.AutoMigrate(&Student{})  
 	db.AutoMigrate(&Hobby{})  
 	db.Model(&Hobby{}).AddForeignKey("stu_id","students(id)","RESTRICT", "RESTRICT")

@@ -14,11 +14,11 @@ func main(){
 	var players []*player.Player
 	players = append(players, playerA)
 	players = append(players, playerB)
-	var size uint8
+	var size int
 	start: fmt.Println("enter the size for board(size*size) ")
 	_, err := fmt.Scanln(&size)
-	if size==0{
-		fmt.Println("board size can't be zero")
+	if size<=0 {
+		fmt.Println("board size should be grater than or equal to 1")
 		goto start
 	}
 	if err!=nil {
@@ -26,7 +26,7 @@ func main(){
 			
 	}
 
-	board1:=board.NewBoard(size)
+	board1:=board.NewBoard(uint8(size))
 	resultanalyzer1:=resultanalyzer.NewAnalyzer(board1)
 
 	currentPlayer:=playerA

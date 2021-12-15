@@ -23,8 +23,8 @@ func NewGame(players []*player.Player,currentPlayer *player.Player,board *board.
 }
 
 func (g *Game) Play(){
-	var row uint8
-	var col uint8
+	var row int
+	var col int
 	var status result.Result
 	g.currentPlayer=g.players[0]
 	
@@ -36,10 +36,14 @@ func (g *Game) Play(){
 			fmt.Println(err)
 			
 		}
+		if row<0 ||col<0{
+			fmt.Println("row and column can't be negative")
+			goto Start
+		}
 
 		// fmt.Println(row)
 		//fmt.Println(col)
-		ok:=g.board.Set(row,col,g.currentPlayer.GetMark())
+		ok:=g.board.Set(uint8(row),uint8(col),g.currentPlayer.GetMark())
 		if !ok{
 			fmt.Println("Your entry is invalid .Consider valid position")
 			goto Start

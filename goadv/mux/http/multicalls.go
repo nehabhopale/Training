@@ -23,6 +23,7 @@ type Info1 struct{
 
 var jokes map[int]Info1
 var wg=sync.WaitGroup{}
+
 func getJoke(i int ){
 	
 	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
@@ -39,6 +40,24 @@ func getJoke(i int ){
     fmt.Println(jokes)
 	wg.Done()
 }
+var mapp sync.Map
+func getJoke1(i int){
+	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
+    var chuck Info1
+
+    err = json.NewDecoder(resp.Body).Decode(&chuck)
+
+    if err != nil {
+
+        fmt.Println(err)
+
+    }
+	//jokes[i]=chuck
+    //fmt.Println(jokes)
+	mapp.Store(i,chuck)
+	wg.Done()
+
+}
 func main() {
 	jokes=make(map[int]Info1,25)
     now := time.Now()
@@ -54,4 +73,5 @@ func main() {
         go getJoke(i)
     }
 	wg.Wait()
+	fmt.Println(mapp)
 }

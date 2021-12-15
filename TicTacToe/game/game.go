@@ -29,6 +29,7 @@ func (g *Game) Play(){
 	g.currentPlayer=g.players[0]
 	
 	for ok := true; ok; ok = (status==result.InProgress){
+	Start:
 		fmt.Printf("enter row  and col for %s ",g.currentPlayer.GetName())
 		_, err := fmt.Scanln(&row,&col)
 		if err!=nil{
@@ -36,9 +37,13 @@ func (g *Game) Play(){
 			
 		}
 
-		fmt.Println(row)
-		fmt.Println(col)
-		g.board.Set(row,col,g.currentPlayer.GetMark())
+		// fmt.Println(row)
+		//fmt.Println(col)
+		ok:=g.board.Set(row,col,g.currentPlayer.GetMark())
+		if !ok{
+			fmt.Println("Your entry is invalid .Consider valid position")
+			goto Start
+		}
 		g.board.PrintBoard()
 		status=g.resultanalyzer.Analyze()
 		

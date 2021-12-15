@@ -5,7 +5,8 @@ import(
 "tictac/player"
 "tictac/board"
 "tictac/resultanalyzer"
-"tictac/game")
+"tictac/game"
+"fmt")
 
 func main(){
 	playerA := player.NewPlayer("k", mark.Not)
@@ -13,7 +14,19 @@ func main(){
 	var players []*player.Player
 	players = append(players, playerA)
 	players = append(players, playerB)
-	board1:=board.NewBoard(4)
+	var size uint8
+	start: fmt.Println("enter the size for board(size*size) ")
+	_, err := fmt.Scanln(&size)
+	if size==0{
+		fmt.Println("board size can't be zero")
+		goto start
+	}
+	if err!=nil {
+			fmt.Println(err)
+			
+	}
+
+	board1:=board.NewBoard(size)
 	resultanalyzer1:=resultanalyzer.NewAnalyzer(board1)
 
 	currentPlayer:=playerA

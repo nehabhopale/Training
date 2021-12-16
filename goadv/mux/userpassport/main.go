@@ -23,11 +23,19 @@ func main(){
 	CreateTable(db)
 	connector.Connect(db)
 	
+	
 	r := mux.NewRouter()
 
 	r.HandleFunc("/path/users", connector.GetUsers(db)).Methods("GET")
-	r.HandleFunc("/path/addusers", connector.AddUser(db)).Methods("Post")
-	r.HandleFunc("/path/users/{id}", connector.GetPassportByUserId(db)).Methods("GET")
+	r.HandleFunc("/path/users", connector.AddUser(db)).Methods("POST")
+	r.HandleFunc("/users", connector.GetUsersWithPagination(db)).Queries("limit", "{limit:[0-7]+}", "pageNo", "{pageNo:[0-7]+}").Methods("GET")
+	r.HandleFunc("/path/users/{id}", connector.GetUserFromId(db)).Methods("GET")
+	r.HandleFunc("/path/users/{id}", connector.UpdateUser(db)).Methods("PUT")
+	r.HandleFunc("/path/users/{id}", connector.DeleteUser(db)).Methods("DELETE")
+	r.HandleFunc("/path/users/passports/{id}", connector.GetPassportByUserId(db)).Methods("GET")
+	r.HandleFunc("/path/passports", connector.GetPassorts(db)).Methods("GET")
+	r.HandleFunc("/path/passports/{id}", connector.GetPassportFromId(db)).Methods("GET")
+	r.HandleFunc("/path/passports/{id}", connector.UpdatePassport(db)).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":9000", r))
 }

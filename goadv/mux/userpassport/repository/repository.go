@@ -7,6 +7,7 @@ type Repository interface {
     Get(uow *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociations []string,primaryKeyName string) error
     GetFirst(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
     GetAll(uow *UnitOfWork, out interface{}, preloadAssociations []string) error
+    GetAllTenant(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor)error
     GetAllForTenant(uow *UnitOfWork, out interface{}, tenantID uuid.UUID, preloadAssociations []string) error
     Add(uow *UnitOfWork, out interface{}) error
     Update(uow *UnitOfWork, out interface{}) error
@@ -51,7 +52,36 @@ type GormRepository struct {
 func NewRepository() Repository {
     return &GormRepository{}
 }
-
+func Paginate(limit int, offset int, count *int) QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		if out != nil && count != nil {
+			if err := db.Model(out).Count(count).Error; err != nil {
+				return db, err
+			}
+		}
+		if limit != -1 {
+			db = db.Limit(limit)
+		}
+		if offset > 0 {
+			db = db.Offset(offset)
+		}
+		return db, nil
+	}
+}
+// GetAll retrieves all the records for a specified entity and returns it  for pagination (same as get all)
+func (repository *GormRepository) GetAllTenant(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
+	db := uow.DB
+	if queryProcessors != nil {
+		var err error
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, out)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return db.Debug().Find(out).Error
+}
 
 // QueryProcessor allows to modify the query before it is executed
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB,error)

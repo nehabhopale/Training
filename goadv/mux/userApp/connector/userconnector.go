@@ -1,4 +1,4 @@
-package controller
+package connector
 
 import (
 	"encoding/json"
@@ -19,7 +19,6 @@ import (
 	"log"
 	"time"
 	"reflect"
-	
 )
 
 var repo1 repo.Repository
@@ -37,7 +36,7 @@ func Connect(dB *gorm.DB) {
 	db = dB
 	repo1 = repo.NewRepository()
 	
-	userService = services.NewUserService(repo1)
+	userService = services.NewUserService(repo1,db)
 
 	passportService = services.NewPassportService(repo1)
 	
@@ -67,22 +66,22 @@ func GetUsers(db *gorm.DB)http.HandlerFunc{
 	}
 }
 // LoginHandler validates the user credentials
-func GetTokenHandler(w http.ResponseWriter, r *http.Request) {
+func GetTokenHandler(w http.ResponseWriter, r *http.Request){
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Please pass the data as URL form encoded", http.StatusBadRequest)
 		return
 	}
 	log.Println(r.Form)
-	username := r.Form.Get("username")
+	email := r.Form.Get("email")
 	password := r.Form.Get("password")
-	log.Println("username ", username)
+	log.Println("email ", email)
 	log.Println("password", password)
-	if originalPassword, ok := users[username]; ok {
+	if originalPassword, ok := userService.GetPasswordFromEmail(email); ok {
 		if password == originalPassword {
 			// Create a claims map
 			claims := jwt.MapClaims{
-				"username": username,
+				"email": email,
 				"IssuedAt": time.Now().Unix(),
 			}
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -151,9 +150,9 @@ func AddUser(db *gorm.DB)http.HandlerFunc{
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
 	//var user model.User
-	user:=model.NewUser("pooja")
+	user:=model.NewUser("neha","B","neha@123","4567")
 	json.NewDecoder(r.Body).Decode(&user)
-	userService.AddUser(db,user)
+	userService.AddUser(db,&user)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 	}

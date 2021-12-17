@@ -12,7 +12,7 @@ _"github.com/jinzhu/gorm/dialects/mysql")
 
 
 func main(){
-	DNS:="root:admin@tcp(127.0.0.1:3306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
+	DNS:="root:admin@tcp(127.0.0.1:3306)/app?charset=utf8mb4&parseTime=True&loc=Local"
 	db,err:=gorm.Open("mysql",DNS)
 	if err!=nil{
 		fmt.Println(err)
@@ -25,7 +25,7 @@ func main(){
 	
 	
 	r := mux.NewRouter()
-	r.Use(connector.ValidAuth)
+	//r.Use(connector.ValidAuth)
 	r.HandleFunc("/login", connector.GetTokenHandler)
 
 	r.HandleFunc("/path/users", connector.GetUsers(db)).Methods("GET")

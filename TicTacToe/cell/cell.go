@@ -10,11 +10,12 @@ type Cell struct{
 func(c *Cell)GetMark() mark.Mark{
 	return c.mark
 }
-func (c *Cell)SetMark(value mark.Mark){
+func (c *Cell)SetMark(value mark.Mark)error{
 	if value==mark.Empty{
-	 	fmt.Println("mark can't be empty")
+	 	return fmt.Errorf("mark can't be empty")
 	}
 	c.mark=value
+	return nil
 
 }
 func NewCell(mark mark.Mark) *Cell{

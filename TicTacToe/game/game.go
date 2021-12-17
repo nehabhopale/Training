@@ -5,6 +5,7 @@ import("tictac/board"
 "tictac/player"
 "tictac/result"
 "fmt"
+
 )
 
 type Game struct{
@@ -30,19 +31,20 @@ func (g *Game) Play(){
 	
 	for ok := true; ok; ok = (status==result.InProgress){
 	Start:
-		fmt.Printf("enter row  and col for %s ",g.currentPlayer.GetName())
+		fmt.Printf("enter row  and col  in a less than %d and greater than equal to 0 for %s ",g.board.GetSize(),g.currentPlayer.GetName())
 		_, err := fmt.Scanln(&row,&col)
 		if err!=nil{
 			fmt.Println(err)
 			
 		}
+		
 		if row<0 ||col<0{
 			fmt.Println("row and column can't be negative")
 			goto Start
 		}
 
-		// fmt.Println(row)
-		//fmt.Println(col)
+		fmt.Println(row)
+		fmt.Println(col)
 		ok:=g.board.Set(uint8(row),uint8(col),g.currentPlayer.GetMark())
 		if !ok{
 			fmt.Println("Your entry is invalid .Consider valid position")

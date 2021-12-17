@@ -3,6 +3,7 @@ package board
 import ("tictac/cell"
 "tictac/mark"
 "fmt"
+
 )
 
 type Board struct{
@@ -69,7 +70,11 @@ func(b *Board)Set(row uint8, col uint8 , mark1 mark.Mark) bool {
 	if row > (b.size-1) || col > (b.size-1) || b.cells[cellLocation].GetMark() != mark.Empty {
 		return false
 	}
-	b.cells[cellLocation].SetMark(mark1)
+	err:=b.cells[cellLocation].SetMark(mark1)
+	if err!=nil{
+		fmt.Println(err)
+	}
+	
 	return true
 	// if b.cells[cellLocation].GetMark() !=mark.Empty{
 	// 	fmt.Println("its an occupied position give a try in next move.Its a turn of  ",b.cells[cellLocation].GetMark())

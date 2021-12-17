@@ -19,10 +19,10 @@ func NewAnalyzer(board *board.Board) *Resultanalyzer{
 }
 func( r *Resultanalyzer ) Analyze() result.Result{
 	
-	if r.board.IsFull(){
-		return result.Draw
-	}else if r.checkRowsForResult() || r.checkColsForResult()||r.checkDiagonal1()||r.checkDiagonal2(){
+	if  r.checkRowsForResult() || r.checkColsForResult()||r.checkDiagonal1()||r.checkDiagonal2() {
 		return result.Winner
+	}else if r.board.IsFull() {
+		return result.Draw
 	}
 	return result.InProgress
 	

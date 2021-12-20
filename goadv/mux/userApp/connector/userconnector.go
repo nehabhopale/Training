@@ -47,20 +47,19 @@ func Connect(dB *gorm.DB) {
 	hobbyService=services.NewHobbyService(repo1,&logger)
 	
 }
-func  RegisterUserRoutes(db *gorm.DB,router *mux.Router) {
-	fmt.Println("inside user route")
-//	router.Use(ValidAuth)
-	router.HandleFunc("/login", GetTokenHandler).Methods("GET")
-	//router.HandleFunc("/users", GetUsers(db)).Methods("GET")
-	router.HandleFunc("/users",GetUsersWithPagination(db)).Methods("GET")
-	//router.HandleFunc("/users", GetUsersWithPagination(db)).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
-	router.HandleFunc("/users", AddUser(db)).Methods("POST")
-	router.HandleFunc("/users/{id}", UpdateUser(db)).Methods("PUT")
-	router.HandleFunc("/users/{id}", GetUserFromId(db)).Methods("GET")
-	router.HandleFunc("/users/{id}", DeleteUser(db)).Methods("DELETE")
+func  RegisterUserRoutes(db *gorm.DB,authRout *mux.Router,nonAuthRoute *mux.Router) {
+	nonAuthRoute.HandleFunc("/users/{id}", GetUserFromId(db)).Methods("GET")
+	//fmt.Println("inside user route")
+	authRout.Use(ValidAuth)
+	authRout.HandleFunc("/login", GetTokenHandler).Methods("GET")
+	authRout.HandleFunc("/users", GetUsers(db)).Methods("GET")
+	authRout.HandleFunc("/users",GetUsersWithPagination(db)).Methods("GET")
+	authRout.HandleFunc("/users", GetUsersWithPagination(db)).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
+	authRout.HandleFunc("/users", AddUser(db)).Methods("POST")
+	authRout.HandleFunc("/users/{id}", UpdateUser(db)).Methods("PUT")
+	//authRout.HandleFunc("/users/{id}", GetUserFromId(db)).Methods("GET")
+	authRout.HandleFunc("/users/{id}", DeleteUser(db)).Methods("DELETE")
 }
-
-
 
 // LoginHandler validates the user credentials
 func GetTokenHandler(w http.ResponseWriter, r *http.Request){

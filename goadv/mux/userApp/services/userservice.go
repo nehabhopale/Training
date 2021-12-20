@@ -47,7 +47,6 @@ func (u *UserService)AddUser(db *gorm.DB, user *model.User)error {
 //all users with pagination
 func(u *UserService) GetAllUsers(db *gorm.DB, out *[]model.User,limit int,offset int )error {
 	uow:=repo.NewUnitOfWork(db,true)
-
 	var queryp [] repo.QueryProcessor
 	var count int
 	var preload =[]string{"Passport","Courses","Hobbies"}
@@ -67,7 +66,7 @@ func(u *UserService) GetAllUsers(db *gorm.DB, out *[]model.User,limit int,offset
 }
 func(u *UserService) GetUsers(db *gorm.DB, out *[]model.User, preloadAssociations []string)error {
 	uow:=repo.NewUnitOfWork(db,true)
-	
+
 	err := u.Repo.GetAll(uow, out, preloadAssociations)
 	if err != nil {
 		uow.Complete()

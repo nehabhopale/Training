@@ -2,69 +2,66 @@ package connector
 
 import (
 	"encoding/json"
+	"os"
 	"fmt"
 	"net/http"
 	"strconv"
-
+	"log"
+	"io/ioutil"
 	"pass/model"
 	repo"pass/repository"
 	services"pass/services"
-
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
-
+	//bcrypt"golang.org/x/crypto/bcrypt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
-	"log"
 	"time"
 	"reflect"
+	"github.com/rs/zerolog"
 )
 
 var repo1 repo.Repository
 var userService *services.UserService
 var passportService *services.PassportService
+var courseService *services.CourseService
+var hobbyService *services.HobbyService
 var db *gorm.DB
 var secretKey = []byte("nehaaaaaa")
-var users = map[string]string{"naren": "passme", "admin": "password"}
+//var users = map[string]string{"naren": "passme", "admin": "password"}
 // Response is a representation of JSON response for JWT
 type Response struct {
 	Token  string `json:"token"`
 	Status string `json:"status"`
 }
 func Connect(dB *gorm.DB) {
+
+	tempFile,_:= ioutil.TempFile(os.TempDir(), "deleteme")
+	logger := zerolog.New(tempFile).With().Logger()
 	db = dB
 	repo1 = repo.NewRepository()
+	userService = services.NewUserService(repo1,db,&logger)
+	passportService = services.NewPassportService(repo1,&logger)
+	courseService=services.NewCourseService(repo1,&logger)
+	hobbyService=services.NewHobbyService(repo1,&logger)
 	
-	userService = services.NewUserService(repo1,db)
-
-	passportService = services.NewPassportService(repo1)
-	
+}
+func  RegisterUserRoutes(db *gorm.DB,router *mux.Router) {
+	fmt.Println("inside user route")
+//	router.Use(ValidAuth)
+	router.HandleFunc("/login", GetTokenHandler).Methods("GET")
+	//router.HandleFunc("/users", GetUsers(db)).Methods("GET")
+	router.HandleFunc("/users",GetUsersWithPagination(db)).Methods("GET")
+	//router.HandleFunc("/users", GetUsersWithPagination(db)).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
+	router.HandleFunc("/users", AddUser(db)).Methods("POST")
+	router.HandleFunc("/users/{id}", UpdateUser(db)).Methods("PUT")
+	router.HandleFunc("/users/{id}", GetUserFromId(db)).Methods("GET")
+	router.HandleFunc("/users/{id}", DeleteUser(db)).Methods("DELETE")
 }
 
 
-func GetUsersWithPagination(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
-	limit, _ := strconv.Atoi(r.FormValue("limit"))
-	pageNo, _ := strconv.Atoi(r.FormValue("pageNo"))
-	offset := limit * (pageNo - 1)
-	fmt.Println(limit, pageNo)
-	var users []model.User
-	userService.GetAllUsers(db,&users, limit, offset)
-	json.NewEncoder(w).Encode(users)
-}}
-func GetUsers(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
-	var users []model.User
-	str :=[]string{"Passport"}
-	userService.GetUsers(db,&users, str)
-	json.NewEncoder(w).Encode(users)
-	}
-}
+
 // LoginHandler validates the user credentials
 func GetTokenHandler(w http.ResponseWriter, r *http.Request){
 	err := r.ParseForm()
@@ -77,8 +74,10 @@ func GetTokenHandler(w http.ResponseWriter, r *http.Request){
 	password := r.Form.Get("password")
 	log.Println("email ", email)
 	log.Println("password", password)
-	if originalPassword, ok := userService.GetPasswordFromEmail(email); ok {
-		if password == originalPassword {
+
+	if userPassHash,ok:= userService.GetPasswordFromEmail(email);ok{
+		
+		if services.CheckPasswordHash(password,userPassHash){
 			// Create a claims map
 			claims := jwt.MapClaims{
 				"email": email,
@@ -98,22 +97,28 @@ func GetTokenHandler(w http.ResponseWriter, r *http.Request){
 
 		} else {
 			http.Error(w, "Invalid Credentials", http.StatusUnauthorized)
+			userService.Logger.Error().Err(err).Msg("Invalid Credentials")
 			return
 		}
 	} else {
 		http.Error(w, "User is not found", http.StatusNotFound)
+		userService.Logger.Error().Err(err).Msg("User is not found")
 		return
 	}
 }
 
 func ValidAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL.Path)
+		//fmt.Println(r.URL.Path)
 		if r.URL.Path == "/login" {
 			next.ServeHTTP(w, r)
 			return
 		}
 		tokenString, err := request.HeaderExtractor{"access_token"}.ExtractToken(r)
+		if err!=nil{
+			userService.Logger.Error().Err(err).Msg("check the access token")
+			return
+		}
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -125,7 +130,8 @@ func ValidAuth(next http.Handler) http.Handler {
 		})
 		log.Println(reflect.TypeOf(token))
 		if err != nil {
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			w.WriteHeader(http.StatusForbidden)
+			userService.Logger.Error().Err(err).Msg("check the access token")
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			// If token is valid
@@ -136,13 +142,37 @@ func ValidAuth(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 
 		} else {
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte("check the access token"))
+			userService.Logger.Error().Err(err).Msg("check the access token")
+			return
 		}
 	})
 }
 
 
-
+func GetUsersWithPagination(db *gorm.DB)http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
+	limit, _ := strconv.Atoi(r.FormValue("limit"))
+	pageNo, _ := strconv.Atoi(r.FormValue("pageNo"))
+	offset := limit * (pageNo - 1)
+	//fmt.Println(limit, pageNo)
+	var users []model.User
+	userService.GetAllUsers(db,&users, limit, offset)
+	json.NewEncoder(w).Encode(users)
+}}
+func GetUsers(db *gorm.DB)http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
+	var users []model.User
+	str :=[]string{"Passport"}
+	userService.GetUsers(db,&users, str)
+	json.NewEncoder(w).Encode(users)
+	}
+}
 
 
 func AddUser(db *gorm.DB)http.HandlerFunc{
@@ -150,8 +180,12 @@ func AddUser(db *gorm.DB)http.HandlerFunc{
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
 	//var user model.User
-	user:=model.NewUser("neha","B","neha@123","4567")
+	// pass,_:=services.HashPassword("b4567")
+	var user model.User
+	//user:=model.NewUser("neha","B","bneha@123",pass)
 	json.NewDecoder(r.Body).Decode(&user)
+	pass,_:=services.HashPassword(user.Password)
+	user.Password=pass
 	userService.AddUser(db,&user)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
@@ -165,7 +199,7 @@ func GetUserFromId(db *gorm.DB)http.HandlerFunc{
 		values := mux.Vars(r)
 		id, _ := uuid.FromString(values["id"])
 		var user model.User
-		str1 :=[]string{"Passport"}
+		str1 :=[]string{"Passport","Courses","Hobbies"}
 		userService.GetUserFromId(db,&user,id,str1)
 		json.NewEncoder(w).Encode(user)
 
@@ -180,6 +214,12 @@ func UpdateUser(db *gorm.DB)http.HandlerFunc{
 		id, _ := uuid.FromString(values["id"])
 		var updateUser model.User
 		updateUser.ID = id
+		var pass model.Passport
+		if updateUser.Passport == pass {
+			var passport model.Passport
+			passportService.GetPassportByUserId(db,&passport, id)
+			passportService.DeletePassport(db,passport.ID)
+		}
 		json.NewDecoder(r.Body).Decode(&updateUser)
 		userService.UpdateUser(db,updateUser)
 		json.NewEncoder(w).Encode(updateUser)
@@ -199,14 +239,3 @@ func DeleteUser(db *gorm.DB)http.HandlerFunc{
 	}
 }
 
-// func GetPassportByUserId(db *gorm.DB)http.HandlerFunc{
-// 	return func(w http.ResponseWriter, r *http.Request){
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
-// 	params := mux.Vars(r)
-// 	id, _ := uuid.FromString(params["id"])
-// 	var passport model.Passport
-// 	passportService.GetPassportByUserId(db,&passport,id)
-// 	json.NewEncoder(w).Encode(passport)
-// }
-// }

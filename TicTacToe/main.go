@@ -9,11 +9,20 @@ import(
 "fmt")
 
 func main(){
-	var name1 ,name2 string
-	fmt.Println("enter your name for player 1")
-	fmt.Scanln(&name1)
-	fmt.Println("enter your name for player 2")
+	var name1 string
+	var name2 string
+	label1: fmt.Println("enter your name for player 1")
+	fmt.Scanf("%s\n", &name1)
+	if name1==""{
+		fmt.Println("name can't be empty string")
+		goto label1
+	}
+	label2: fmt.Println("enter your name for player 2")
 	fmt.Scanln(&name2)
+	if name2==""{
+		fmt.Println("name can't be empty string")
+		goto label2
+	}
 
 	playerA := player.NewPlayer(name1, mark.Not)
 	playerB := player.NewPlayer(name2, mark.Cross)

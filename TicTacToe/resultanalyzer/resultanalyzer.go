@@ -21,7 +21,8 @@ func( r *Resultanalyzer ) Analyze() result.Result{
 	
 	if  r.checkRowsForResult() || r.checkColsForResult()||r.checkDiagonal1()||r.checkDiagonal2() {
 		return result.Winner
-	}else if r.board.IsFull() {
+	}
+	if r.board.IsFull() {
 		return result.Draw
 	}
 	return result.InProgress

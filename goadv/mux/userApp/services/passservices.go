@@ -10,50 +10,75 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/rs/zerolog"
 )
 
 type PassportService struct {
 	Repo repo.Repository
-
+	Logger *zerolog.Logger
 }
 
-func NewPassportService(Repo repo.Repository) *PassportService {
+func NewPassportService(Repo repo.Repository,logger *zerolog.Logger) *PassportService {
 	return &PassportService{
 		Repo: Repo,
+		Logger:logger,
 		
 	}
 }
+func(p *PassportService) GetAllPassports(db *gorm.DB, out *[]model.Passport,limit int,offset int )error {
+	uow:=repo.NewUnitOfWork(db,true)
 
-func(p *PassportService) GetPassports(db *gorm.DB, out *[]model.Passport, preloadAssociations []string) {
+	var queryp [] repo.QueryProcessor
+	var count int
+	if limit != 0 {
+		queryp = append(queryp, repo.Paginate(limit, offset, &count))
+	}
+	//fmt.Println(count)
+	err := p.Repo.GetAllTenant(uow, out, queryp)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	p.Logger.Info().Msg("get all passports with pagination  ")
+	uow.Commit()
+	return nil
+}
+func(p *PassportService) GetPassports(db *gorm.DB, out *[]model.Passport, preloadAssociations []string) error{
 	uow:=repo.NewUnitOfWork(db,true)
 	err := p.Repo.GetAll(uow, out, preloadAssociations)
 	if err != nil {
 		uow.Complete()
-		fmt.Println("Error in getting all user ---->", err)
+		return  err
 	}
+	p.Logger.Info().Msg("get all passports ")
 	uow.Commit()
 	
+	return nil
+	
 }
-func (p *PassportService)GetPassportFromId(db *gorm.DB, out interface{}, ID uuid.UUID, preloadAssociations []string)  {
+func (p *PassportService)GetPassportFromId(db *gorm.DB, out interface{}, ID uuid.UUID, preloadAssociations []string)error  {
 	uow:=repo.NewUnitOfWork(db,true)
-	err:=p.Repo.Get(uow,out,ID,preloadAssociations,"pass_id")
+	err:=p.Repo.Get(uow,out,ID,preloadAssociations,"id")
 	if err!=nil{
 		uow.Complete()		//complete will rollback operation
-		fmt.Println("error while getting user from id---->",err)
+		return err
 	}
+	p.Logger.Info().Msg("get passports from its id ")
 	uow.Commit()
+	return nil
 
 }
 
-func (p *PassportService) UpdatePassport(db *gorm.DB, entity model.Passport) { //becaz db.model(&User{})
+func (p *PassportService) UpdatePassport(db *gorm.DB, entity model.Passport) error{ //becaz db.model(&User{})
 	uow:=repo.NewUnitOfWork(db,false)
 	err:=p.Repo.Update(uow,entity)
 	if err!=nil{
-		fmt.Println("err while updating passport--->",err)
 		uow.Complete()
+		return err
 	}
+	p.Logger.Info().Msg("update passports ")
 	uow.Commit()
-
+	return nil
 
 }
 func (p *PassportService) GetPassportByUserId(db *gorm.DB,out *model.Passport, userId uuid.UUID) error {
@@ -67,5 +92,16 @@ func (p *PassportService) GetPassportByUserId(db *gorm.DB,out *model.Passport, u
 		return err
 	}
 	uow.Commit()
+	return nil
+}
+func (p *PassportService) DeletePassport(db *gorm.DB,passId uuid.UUID) error {
+	unit := repo.NewUnitOfWork(db, false)
+	DeletePassport := model.Passport{Base: model.Base{ID: passId}}
+	err := p.Repo.Delete(unit, &DeletePassport)
+	if err != nil {
+		unit.Complete()
+		return err
+	}
+	unit.Commit()
 	return nil
 }

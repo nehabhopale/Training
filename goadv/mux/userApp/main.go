@@ -12,7 +12,7 @@ _"github.com/jinzhu/gorm/dialects/mysql")
 
 
 func main(){
-	DNS:="root:admin@tcp(127.0.0.1:3306)/app?charset=utf8mb4&parseTime=True&loc=Local"
+	DNS:="root:admin@tcp(127.0.0.1:3306)/userApp?charset=utf8mb4&parseTime=True&loc=Local"
 	db,err:=gorm.Open("mysql",DNS)
 	if err!=nil{
 		fmt.Println(err)
@@ -22,22 +22,24 @@ func main(){
 	}
 	CreateTable(db)
 	connector.Connect(db)
-	
-	
 	r := mux.NewRouter()
+	connector.RegisterUserRoutes(db,r)
+	connector.RegisterPassportRoutes(db,r)
+	connector.RegisterHobbyRoutes(db,r)
+	connector.RegisterCourseRoutes(db,r)
 	//r.Use(connector.ValidAuth)
-	r.HandleFunc("/login", connector.GetTokenHandler)
+	// r.HandleFunc("/login", connector.GetTokenHandler)
 
-	r.HandleFunc("/path/users", connector.GetUsers(db)).Methods("GET")
-	r.HandleFunc("/path/users", connector.AddUser(db)).Methods("POST")
-	r.HandleFunc("/users", connector.GetUsersWithPagination(db)).Queries("limit", "{limit:[0-7]+}", "pageNo", "{pageNo:[0-7]+}").Methods("GET")
-	r.HandleFunc("/path/users/{id}", connector.GetUserFromId(db)).Methods("GET")
-	r.HandleFunc("/path/users/{id}", connector.UpdateUser(db)).Methods("PUT")
-	r.HandleFunc("/path/users/{id}", connector.DeleteUser(db)).Methods("DELETE")
-	r.HandleFunc("/path/users/passports/{id}", connector.GetPassportByUserId(db)).Methods("GET")
-	r.HandleFunc("/path/passports", connector.GetPassorts(db)).Methods("GET")
-	r.HandleFunc("/path/passports/{id}", connector.GetPassportFromId(db)).Methods("GET")
-	r.HandleFunc("/path/passports/{id}", connector.UpdatePassport(db)).Methods("PUT")
+	// r.HandleFunc("/path/users", connector.GetUsers(db)).Methods("GET")
+	// r.HandleFunc("/path/users", connector.AddUser(db)).Methods("POST")
+	// r.HandleFunc("/users", connector.GetUsersWithPagination(db)).Queries("limit", "{limit:[0-7]+}", "pageNo", "{pageNo:[0-7]+}").Methods("GET")
+	// r.HandleFunc("/path/users/{id}", connector.GetUserFromId(db)).Methods("GET")
+	// r.HandleFunc("/path/users/{id}", connector.UpdateUser(db)).Methods("PUT")
+	// r.HandleFunc("/path/users/{id}", connector.DeleteUser(db)).Methods("DELETE")
+	// r.HandleFunc("/path/users/passports/{id}", connector.GetPassportByUserId(db)).Methods("GET")
+	// r.HandleFunc("/path/passports", connector.GetPassorts(db)).Methods("GET")
+	// r.HandleFunc("/path/passports/{id}", connector.GetPassportFromId(db)).Methods("GET")
+	// r.HandleFunc("/path/passports/{id}", connector.UpdatePassport(db)).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":9000", r))
 }
@@ -46,10 +48,15 @@ func CreateTable(db *gorm.DB){
 	
 	db.AutoMigrate(&model.Passport{})
 	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Hobby{})
+	db.AutoMigrate(&model.Course{})
 	
 	err1 := db.Debug().Model(&model.Passport{}).AddForeignKey("uid","users(id)","CASCADE", "CASCADE").Error
 	if err1 != nil {
 			fmt.Println(err1)
 	}
-	
+	err2:= db.Debug().Model(&model.Hobby{}).AddForeignKey("uid", "users(id)", "CASCADE", "CASCADE").Error
+		if err2!= nil {
+			fmt.Println(err2)
+		}
 }

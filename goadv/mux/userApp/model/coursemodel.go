@@ -1,6 +1,5 @@
 package model
 import (_"github.com/jinzhu/gorm/dialects/mysql"
-uuid"github.com/satori/go.uuid"
 )
 //user should be able to access courses 
 type Course struct{
@@ -13,6 +12,6 @@ type Course struct{
 func NewCourse(Name string) *Course{
 	return &Course{
 		CourseName:Name,
-		Base:Base{CreateBy:"neha",ID:uuid.NewV4()},
+		// Base:Base{CreateBy:"neha",ID:uuid.NewV4(),CreateAt:time.Now()},
 	}
 }

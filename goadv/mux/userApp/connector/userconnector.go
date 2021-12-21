@@ -50,7 +50,7 @@ func Connect(dB *gorm.DB) {
 func  RegisterUserRoutes(db *gorm.DB,authRout *mux.Router,nonAuthRoute *mux.Router) {
 	nonAuthRoute.HandleFunc("/users/{id}", GetUserFromId(db)).Methods("GET")
 	//fmt.Println("inside user route")
-	authRout.Use(ValidAuth)
+	//authRout.Use(ValidAuth)
 	authRout.HandleFunc("/login", GetTokenHandler).Methods("GET")
 	authRout.HandleFunc("/users", GetUsers(db)).Methods("GET")
 	authRout.HandleFunc("/users",GetUsersWithPagination(db)).Methods("GET")

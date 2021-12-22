@@ -6,7 +6,9 @@ repo"pass/repository"
 "fmt"
 uuid"github.com/satori/go.uuid"
 "golang.org/x/crypto/bcrypt"
-"github.com/rs/zerolog")
+"github.com/rs/zerolog"
+"net/mail"
+)
 
 
 type UserService struct{
@@ -15,15 +17,15 @@ type UserService struct{
 	Logger *zerolog.Logger
 
 }
-func NewUserService(Repo repo.Repository,db *gorm.DB,logger *zerolog.Logger ) *UserService{
+func NewUserService(Repo repo.Repository,logger *zerolog.Logger,DB *gorm.DB ) *UserService{
 	return &UserService{
 		Repo:Repo,
 		Logger:logger,
-		DB:db,
+		DB:DB,
 	}
 }
-func (u *UserService)AddUser(db *gorm.DB, user *model.User)error {
-	uow:=repo.NewUnitOfWork(db,false)
+func (u *UserService)AddUser(user *model.User)error {
+	uow:=repo.NewUnitOfWork(u.DB,false)
 	var courses []model.Course
 	for _, course := range user.Courses {
 		var c model.Course
@@ -39,14 +41,19 @@ func (u *UserService)AddUser(db *gorm.DB, user *model.User)error {
 		uow.Complete()
 		return (err)
 	}
+	_, err1 := mail.ParseAddress(user.Email)
+    if err1!=nil{
+		fmt.Println("invalid user email")
+		return err1
+	}
 	u.Logger.Info().Msg("add users ")
 	uow.Commit()
 	return nil
 }
 
 //all users with pagination
-func(u *UserService) GetAllUsers(db *gorm.DB, out *[]model.User,limit int,offset int )error {
-	uow:=repo.NewUnitOfWork(db,true)
+func(u *UserService) GetAllUsers(out *[]model.User,limit int,offset int )error {
+	uow:=repo.NewUnitOfWork(u.DB,true)
 	var queryp [] repo.QueryProcessor
 	var count int
 	var preload =[]string{"Passport","Courses","Hobbies"}
@@ -64,8 +71,8 @@ func(u *UserService) GetAllUsers(db *gorm.DB, out *[]model.User,limit int,offset
 	uow.Commit()
 	return nil
 }
-func(u *UserService) GetUsers(db *gorm.DB, out *[]model.User, preloadAssociations []string)error {
-	uow:=repo.NewUnitOfWork(db,true)
+func(u *UserService) GetUsers( out *[]model.User, preloadAssociations []string)error {
+	uow:=repo.NewUnitOfWork(u.DB,true)
 
 	err := u.Repo.GetAll(uow, out, preloadAssociations)
 	if err != nil {
@@ -79,8 +86,8 @@ func(u *UserService) GetUsers(db *gorm.DB, out *[]model.User, preloadAssociation
 	
 }
 
-func (u *UserService)GetUserFromId(db *gorm.DB, out interface{}, ID uuid.UUID, preloadAssociations []string)error  {
-	uow:=repo.NewUnitOfWork(db,true)
+func (u *UserService)GetUserFromId(out interface{}, ID uuid.UUID, preloadAssociations []string)error  {
+	uow:=repo.NewUnitOfWork(u.DB,true)
 	err:=u.Repo.Get(uow,out,ID,preloadAssociations,"id")
 	if err!=nil{
 		uow.Complete()		//complete will rollback operation
@@ -125,8 +132,8 @@ func CheckPasswordHash(password, hash string) bool {
     return err == nil
 }
 
-func (u *UserService) UpdateUser(db *gorm.DB, entity model.User) error{ //becaz db.model(&User{})
-	uow:=repo.NewUnitOfWork(db,false)
+func (u *UserService) UpdateUser( entity model.User) error{ //becaz db.model(&User{})
+	uow:=repo.NewUnitOfWork(u.DB,false)
 	err:=u.Repo.Update(uow,entity)
 	if err!=nil{
 		
@@ -139,8 +146,8 @@ func (u *UserService) UpdateUser(db *gorm.DB, entity model.User) error{ //becaz 
 
 }
 
-func  (u *UserService)DeleteUser(db *gorm.DB, entity model.User) error{
-	uow:=repo.NewUnitOfWork(db,false)
+func  (u *UserService)DeleteUser( entity model.User) error{
+	uow:=repo.NewUnitOfWork(u.DB,false)
 	err:=u.Repo.Delete(uow,entity)
 	if err!=nil{
 		uow.Complete()
@@ -151,16 +158,12 @@ func  (u *UserService)DeleteUser(db *gorm.DB, entity model.User) error{
 
 }
 
-func (U *UserService) GetUsersCount(db *gorm.DB) int {
-	uow:=repo.NewUnitOfWork(db,true)
+func (u *UserService) GetUsersCount() int {
+	uow:=repo.NewUnitOfWork(u.DB,true)
 	var users []model.User
 	var count int
-	db.Debug().Model(&users).Count(&count)
-	// if err != nil {
-	// 	fmt.Println("count err",err)
-	// 	uow.Complete()
-	// 	return -1
-	// }
+	u.Repo.Count(uow,&users,&count)
+	//u.DB.Debug().Model(&users).Count(&count)
 	uow.Commit()
 	fmt.Println(count)
 	return count

@@ -16,17 +16,18 @@ import (
 type PassportService struct {
 	Repo repo.Repository
 	Logger *zerolog.Logger
+	DB *gorm.DB
 }
 
-func NewPassportService(Repo repo.Repository,logger *zerolog.Logger) *PassportService {
+func NewPassportService(Repo repo.Repository,logger *zerolog.Logger,DB *gorm.DB) *PassportService {
 	return &PassportService{
 		Repo: Repo,
 		Logger:logger,
-		
+		DB:DB,
 	}
 }
-func(p *PassportService) GetAllPassports(db *gorm.DB, out *[]model.Passport,limit int,offset int )error {
-	uow:=repo.NewUnitOfWork(db,true)
+func(p *PassportService) GetAllPassports(out *[]model.Passport,limit int,offset int )error {
+	uow:=repo.NewUnitOfWork(p.DB,true)
 
 	var queryp [] repo.QueryProcessor
 	var count int
@@ -43,8 +44,8 @@ func(p *PassportService) GetAllPassports(db *gorm.DB, out *[]model.Passport,limi
 	uow.Commit()
 	return nil
 }
-func(p *PassportService) GetPassports(db *gorm.DB, out *[]model.Passport, preloadAssociations []string) error{
-	uow:=repo.NewUnitOfWork(db,true)
+func(p *PassportService) GetPassports(out *[]model.Passport, preloadAssociations []string) error{
+	uow:=repo.NewUnitOfWork(p.DB,true)
 	err := p.Repo.GetAll(uow, out, preloadAssociations)
 	if err != nil {
 		uow.Complete()
@@ -56,8 +57,8 @@ func(p *PassportService) GetPassports(db *gorm.DB, out *[]model.Passport, preloa
 	return nil
 	
 }
-func (p *PassportService)GetPassportFromId(db *gorm.DB, out interface{}, ID uuid.UUID, preloadAssociations []string)error  {
-	uow:=repo.NewUnitOfWork(db,true)
+func (p *PassportService)GetPassportFromId( out interface{}, ID uuid.UUID, preloadAssociations []string)error  {
+	uow:=repo.NewUnitOfWork(p.DB,true)
 	err:=p.Repo.Get(uow,out,ID,preloadAssociations,"id")
 	if err!=nil{
 		uow.Complete()		//complete will rollback operation
@@ -69,8 +70,8 @@ func (p *PassportService)GetPassportFromId(db *gorm.DB, out interface{}, ID uuid
 
 }
 
-func (p *PassportService) UpdatePassport(db *gorm.DB, entity model.Passport) error{ //becaz db.model(&User{})
-	uow:=repo.NewUnitOfWork(db,false)
+func (p *PassportService) UpdatePassport(entity model.Passport) error{ //becaz db.model(&User{})
+	uow:=repo.NewUnitOfWork(p.DB,false)
 	err:=p.Repo.Update(uow,entity)
 	if err!=nil{
 		uow.Complete()
@@ -81,8 +82,8 @@ func (p *PassportService) UpdatePassport(db *gorm.DB, entity model.Passport) err
 	return nil
 
 }
-func (p *PassportService) GetPassportByUserId(db *gorm.DB,out *model.Passport, userId uuid.UUID) error {
-	uow:=repo.NewUnitOfWork(db,true)
+func (p *PassportService) GetPassportByUserId(out *model.Passport, userId uuid.UUID) error {
+	uow:=repo.NewUnitOfWork(p.DB,true)
 	var queryp []repo.QueryProcessor
 	queryp = append(queryp, repo.Filter("uid=?", userId))
 	err := p.Repo.GetFirst(uow, out, queryp)
@@ -94,10 +95,10 @@ func (p *PassportService) GetPassportByUserId(db *gorm.DB,out *model.Passport, u
 	uow.Commit()
 	return nil
 }
-func (p *PassportService) DeletePassport(db *gorm.DB,passId uuid.UUID) error {
-	unit := repo.NewUnitOfWork(db, false)
-	DeletePassport := model.Passport{Base: model.Base{ID: passId}}
-	err := p.Repo.Delete(unit, &DeletePassport)
+func (p *PassportService) DeletePassport(passId uuid.UUID) error {
+	unit := repo.NewUnitOfWork(p.DB, false)
+	DeletedPassport := model.Passport{Base: model.Base{ID: passId}}
+	err := p.Repo.Delete(unit, &DeletedPassport)
 	if err != nil {
 		unit.Complete()
 		return err

@@ -6,7 +6,7 @@ package model
 type User struct{
 	Base
 	//ID uuid.UUID	`gorm:";primary_key;type:varchar(50);"`
-	FirstName string 
+	FirstName string  
 	LastName string
 	Passport Passport	`gorm:"foreignKey:UID"`
 	Email string		`gorm:"unique;not null"`
@@ -15,13 +15,3 @@ type User struct{
 	Hobbies   []Hobby	`gorm:"foreignKey:UID"`
 
 }
-// func NewUser(fname string,lname string,email string,pass string)User{
-// 	return User{
-// 		//Base:Base{ID:uuid.NewV4(),CreateBy:"neha",CreateAt:time.Now()},
-// 		FirstName:fname,
-// 		LastName:lname,
-// 		Email:email,
-// 		Password:pass,	
-// 	}
-// }
-

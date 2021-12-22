@@ -7,7 +7,7 @@ type Base struct{
 	ID  uuid.UUID `gorm:"type:varchar(36);primary_key"`
 	CreateBy string
 	CreateAt time.Time
-	DeleteAt *time.Time
+	DeletedAt *time.Time
 }
 func (base *Base) BeforeCreate(scope *gorm.Scope) error {
 	scope.SetColumn("ID", uuid.NewV4())

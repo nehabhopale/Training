@@ -9,6 +9,7 @@ type Repository interface {
     GetAll(uow *UnitOfWork, out interface{}, preloadAssociations []string) error
     GetAllTenant(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor)error
     GetAllForTenant(uow *UnitOfWork, out interface{}, tenantID uuid.UUID, preloadAssociations []string) error
+	Count(uow *UnitOfWork, entity interface{},count interface{}) error
     Add(uow *UnitOfWork, out interface{}) error
     Update(uow *UnitOfWork, out interface{}) error
     Delete(uow *UnitOfWork, out interface{}) error
@@ -154,7 +155,10 @@ func (repository *GormRepository) GetAllForTenant(uow *UnitOfWork, out interface
 func (repository *GormRepository) Add(uow *UnitOfWork, entity interface{}) error {
     return uow.DB.Create(entity).Error
 }
-
+//count specified entity
+func (repository *GormRepository) Count(uow *UnitOfWork, entity interface{},count interface{}) error {
+    return uow.DB.Debug().Model(entity).Count(count).Error
+}
 // Update specified Entity
 func (repository *GormRepository) Update(uow *UnitOfWork, entity interface{}) error {
     return uow.DB.Model(entity).Update(entity).Error

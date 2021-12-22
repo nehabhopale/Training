@@ -10,19 +10,21 @@ uuid"github.com/satori/go.uuid"
 type HobbyService struct {
 	Repo repo.Repository
 	Logger *zerolog.Logger
+	DB *gorm.DB
 
 }
 
-func NewHobbyService(Repo repo.Repository,logger *zerolog.Logger) *HobbyService {
+func NewHobbyService(Repo repo.Repository,logger *zerolog.Logger,DB *gorm.DB) *HobbyService {
 	return &HobbyService{
 		Repo: Repo,
 		Logger :logger,
+		DB:DB,
 	}
 }
 
 
-func(h *HobbyService) GetHobbies(db *gorm.DB, out *[]model.Hobby,limit int,offset int )error {
-	uow:=repo.NewUnitOfWork(db,true)
+func(h *HobbyService) GetHobbies(out *[]model.Hobby,limit int,offset int )error {
+	uow:=repo.NewUnitOfWork(h.DB,true)
 
 	var queryp [] repo.QueryProcessor
 	var count int
@@ -40,8 +42,8 @@ func(h *HobbyService) GetHobbies(db *gorm.DB, out *[]model.Hobby,limit int,offse
 	return nil
 }
 
-func (h *HobbyService) GetHobbyFromId(db *gorm.DB,out *model.Hobby, ID uuid.UUID, preloadAssociations []string) error {
-	uow:=repo.NewUnitOfWork(db,true)
+func (h *HobbyService) GetHobbyFromId(out *model.Hobby, ID uuid.UUID, preloadAssociations []string) error {
+	uow:=repo.NewUnitOfWork(h.DB,true)
 	err:=h.Repo.Get(uow,out,ID,preloadAssociations,"id")
 	if err!=nil{
 		uow.Complete()		//complete will rollback operation
@@ -52,8 +54,8 @@ func (h *HobbyService) GetHobbyFromId(db *gorm.DB,out *model.Hobby, ID uuid.UUID
 	return nil
 }
 
-func (h *HobbyService) UpdateHobby(db *gorm.DB,entity model.Hobby)error {
-	uow:=repo.NewUnitOfWork(db,false)
+func (h *HobbyService) UpdateHobby(entity model.Hobby)error {
+	uow:=repo.NewUnitOfWork(h.DB,false)
 	err:=h.Repo.Update(uow,entity)
 	if err!=nil{
 		uow.Complete()
@@ -64,8 +66,8 @@ func (h *HobbyService) UpdateHobby(db *gorm.DB,entity model.Hobby)error {
 	return nil
 }
 
-func (h *HobbyService) DeleteHobby(db *gorm.DB,entity model.Hobby) error {
-	uow:=repo.NewUnitOfWork(db,false)
+func (h *HobbyService) DeleteHobby(entity model.Hobby) error {
+	uow:=repo.NewUnitOfWork(h.DB,false)
 	err:=h.Repo.Delete(uow,entity)
 	if err!=nil{
 		uow.Complete()

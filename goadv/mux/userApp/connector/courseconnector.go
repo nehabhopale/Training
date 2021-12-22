@@ -6,91 +6,96 @@ import (
 	"net/http"
 	"strconv"
 	"pass/model"
+	"pass/services"
+	"pass/handler"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
-func RegisterCourseRoutes(db *gorm.DB,router *mux.Router) {
-	router.HandleFunc("/course", GetAllCourses(db)).Methods("GET")
-	router.HandleFunc("/course", GetAllCourses(db)).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
-	router.HandleFunc("/course", AddCourse(db)).Methods("POST")
-	router.HandleFunc("/course/{id}", UpdateCourse(db)).Methods("PUT")
-	router.HandleFunc("/course/{id}", GetCourseFromId(db)).Methods("GET")
-	router.HandleFunc("/course/{id}", DeleteCourse(db)).Methods("DELETE")
+type courseConnector struct{
+	handler  *handler.Handler
+	userService     *services.UserService
+	courseService *services.CourseService
 }
-func AddCourse(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
+func NewCourseConnector(handler *handler.Handler,userService *services.UserService, courseService *services.CourseService) *courseConnector {
+	return &courseConnector{
+		handler:handler,
+		userService:     userService,
+		courseService: courseService,
+	}
+}
+
+func (c *courseConnector)RegisterCourseRoutes(authRoute *mux.Router,noAuthRoute *mux.Router) {
+	noAuthRoute.HandleFunc("/course", c.AddCourse).Methods("POST")
+	authRoute.Use(c.handler.ValidAuth)
+	authRoute.HandleFunc("/course", c.GetAllCourses).Methods("GET")
+	authRoute.HandleFunc("/course",c. GetAllCourses).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
+	//authRoute.HandleFunc("/course", c.AddCourse).Methods("POST")
+	authRoute.HandleFunc("/course/{id}", c.UpdateCourse).Methods("PUT")
+	authRoute.HandleFunc("/course/{id}", c.GetCourseFromId).Methods("GET")
+	authRoute.HandleFunc("/course/{id}", c.DeleteCourse).Methods("DELETE")
+}
+func(c *courseConnector) AddCourse(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
-	//course:=model.NewCourse("python")
+	w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
+	var course model.Course
+	json.NewDecoder(r.Body).Decode(&course)
+	c.courseService.AddCourse(&course)
 	// err2:=db.Debug().Model(course).Association("Users").Error
 	// if err2!=nil{
 	// 	fmt.Println("error in association------>",err2)
 	// }
-	var course model.Course
-	json.NewDecoder(r.Body).Decode(&course)
-	courseService.AddCourse(db,&course)
-	err2:=db.Debug().Model(course).Association("Users").Error
-	if err2!=nil{
-		fmt.Println("error in association------>",err2)
-	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(course)
-	}
+	
 }
 
-func GetAllCourses(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)GetAllCourses(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
+	w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
 	pageNo, _ := strconv.Atoi(r.FormValue("pageNo"))
 	offset := limit * (pageNo - 1)
 	fmt.Println(limit, pageNo)
 	var courses []model.Course
-	courseService.GetAllCourses(db,&courses, limit, offset)
+	c.courseService.GetAllCourses(&courses, limit, offset)
 	json.NewEncoder(w).Encode(courses)
-	}
+	
 }
-func GetCourseFromId(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)GetCourseFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
+		w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, _ := uuid.FromString(values["id"])
 		var course model.Course
 		course.ID=id
 		var str1 []string
-		courseService.GetCourseFromId(db,&course,id,str1)
+		c.courseService.GetCourseFromId(&course,id,str1)
 		json.NewEncoder(w).Encode(course)
 
-	}
 }
 
-func UpdateCourse(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)UpdateCourse(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
+		w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, _ := uuid.FromString(values["id"])
 		var updateCourse model.Course
 		updateCourse.ID = id
 		json.NewDecoder(r.Body).Decode(&updateCourse)
-		courseService.UpdateCourse(db,updateCourse)
+		c.courseService.UpdateCourse(updateCourse)
 		json.NewEncoder(w).Encode(updateCourse)
-	}
+
 }
-func DeleteCourse(db *gorm.DB)http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)DeleteCourse(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(userService.GetUsersCount(db)))
+		w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, _ := uuid.FromString(values["id"])
 		var deleteCourse model.Course
 		deleteCourse.ID = id
 		json.NewDecoder(r.Body).Decode(&deleteCourse)
-		courseService.DeleteCourse(db,deleteCourse)
+		c.courseService.DeleteCourse(deleteCourse)
 		json.NewEncoder(w).Encode(deleteCourse)
-	}
+	
 }
 

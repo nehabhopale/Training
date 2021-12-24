@@ -6,37 +6,33 @@ import (
 	"net/http"
 	"strconv"
 	"pass/model"
-	"pass/services"
+	"pass/service"
 	"pass/handler"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 )
 type courseConnector struct{
 	handler  *handler.Handler
-	userService     *services.UserService
-	courseService *services.CourseService
+	courseService *service.CourseService
 }
-func NewCourseConnector(handler *handler.Handler,userService *services.UserService, courseService *services.CourseService) *courseConnector {
+func NewCourseConnector(handler *handler.Handler, courseService *service.CourseService) *courseConnector {
 	return &courseConnector{
 		handler:handler,
-		userService:     userService,
 		courseService: courseService,
 	}
 }
 
 func (c *courseConnector)RegisterCourseRoutes(authRoute *mux.Router,noAuthRoute *mux.Router) {
-	noAuthRoute.HandleFunc("/course", c.AddCourse).Methods("POST")
+	noAuthRoute.HandleFunc("/courses", c.addCourse).Methods("POST")
 	authRoute.Use(c.handler.ValidAuth)
-	authRoute.HandleFunc("/course", c.GetAllCourses).Methods("GET")
-	authRoute.HandleFunc("/course",c. GetAllCourses).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
-	//authRoute.HandleFunc("/course", c.AddCourse).Methods("POST")
-	authRoute.HandleFunc("/course/{id}", c.UpdateCourse).Methods("PUT")
-	authRoute.HandleFunc("/course/{id}", c.GetCourseFromId).Methods("GET")
-	authRoute.HandleFunc("/course/{id}", c.DeleteCourse).Methods("DELETE")
+	authRoute.HandleFunc("/courses", c.getAllCourses).Methods("GET")
+	authRoute.HandleFunc("/courses",c.getAllCourses).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
+	authRoute.HandleFunc("/courses/{id}", c.updateCourse).Methods("PUT")
+	authRoute.HandleFunc("/courses/{id}", c.getCourseFromId).Methods("GET")
+	authRoute.HandleFunc("/courses/{id}", c.deleteCourse).Methods("DELETE")
 }
-func(c *courseConnector) AddCourse(w http.ResponseWriter, r *http.Request){
+func(c *courseConnector)addCourse(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 	var course model.Course
 	json.NewDecoder(r.Body).Decode(&course)
 	c.courseService.AddCourse(&course)
@@ -49,9 +45,8 @@ func(c *courseConnector) AddCourse(w http.ResponseWriter, r *http.Request){
 	
 }
 
-func (c *courseConnector)GetAllCourses(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)getAllCourses(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
 	pageNo, _ := strconv.Atoi(r.FormValue("pageNo"))
 	offset := limit * (pageNo - 1)
@@ -61,9 +56,8 @@ func (c *courseConnector)GetAllCourses(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(courses)
 	
 }
-func (c *courseConnector)GetCourseFromId(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)getCourseFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, _ := uuid.FromString(values["id"])
 		var course model.Course
@@ -74,11 +68,14 @@ func (c *courseConnector)GetCourseFromId(w http.ResponseWriter, r *http.Request)
 
 }
 
-func (c *courseConnector)UpdateCourse(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)updateCourse(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err:= uuid.FromString(values["id"])
+		if err!=nil{
+			fmt.Println(err)
+			return 
+		}
 		var updateCourse model.Course
 		updateCourse.ID = id
 		json.NewDecoder(r.Body).Decode(&updateCourse)
@@ -86,9 +83,8 @@ func (c *courseConnector)UpdateCourse(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(updateCourse)
 
 }
-func (c *courseConnector)DeleteCourse(w http.ResponseWriter, r *http.Request){
+func (c *courseConnector)deleteCourse(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(c.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, _ := uuid.FromString(values["id"])
 		var deleteCourse model.Course

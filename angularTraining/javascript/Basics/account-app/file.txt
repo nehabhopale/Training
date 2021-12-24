@@ -1,0 +1,2 @@
+{"balance":1400,"accNo":123,"transaction":"deposit"}
+{"balance":1390,"accNo":123,"transaction":"withdraw"}

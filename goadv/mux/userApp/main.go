@@ -7,7 +7,7 @@ import (
 "os"
 connector"pass/connector"
 repo"pass/repository"
-services"pass/services"
+service"pass/service"
 "fmt"
 "log"
 "net/http"
@@ -32,17 +32,17 @@ func main(){
 	tempFile,_:= ioutil.TempFile(os.TempDir(), "deleteme")
 	logger := zerolog.New(tempFile).With().Logger()
 
-	userService:=services.NewUserService(repo1,&logger,db)
-	passportService:=services.NewPassportService(repo1,&logger,db)
-	hobbyService:=services.NewHobbyService(repo1,&logger,db)
-	courseService:=services.NewCourseService(repo1,&logger,db)
+	userService:=service.NewUserService(repo1,&logger,db)
+	passportService:=service.NewPassportService(repo1,&logger,db)
+	hobbyService:=service.NewHobbyService(repo1,&logger,db)
+	courseService:=service.NewCourseService(repo1,&logger,db)
 	handler:=handler.Newhandler(userService)
 
 
 	userConnector:=connector.NewUserConnector(handler,userService,passportService)
 	passportConnector:=connector.NewPassportConnector(handler,userService,passportService)
-	hobbyConnector:=connector.NewHobbyConnector(handler,userService,hobbyService)
-	courseConnector:=connector.NewCourseConnector(handler,userService,courseService)
+	hobbyConnector:=connector.NewHobbyConnector(handler,hobbyService)
+	courseConnector:=connector.NewCourseConnector(handler,courseService)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/login", handler.GetTokenHandler).Methods("POST")

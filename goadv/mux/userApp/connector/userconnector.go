@@ -5,19 +5,20 @@ import (
 	"net/http"
 	"strconv"
 	"pass/model"
-	services"pass/services"
+	service"pass/service"
 	handler"pass/handler"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
+	"fmt"
 
 )
 
 type userConnector struct{
 	handler  *handler.Handler
-	userService     *services.UserService
-	passportService *services.PassportService
+	userService     *service.UserService
+	passportService *service.PassportService
 }
-func NewUserConnector(handler *handler.Handler,userService *services.UserService, passportService *services.PassportService) *userConnector {
+func NewUserConnector(handler *handler.Handler,userService *service.UserService, passportService *service.PassportService) *userConnector {
 	return &userConnector{
 		handler:handler,
 		userService:     userService,
@@ -29,16 +30,16 @@ var secretKey = []byte("nehaaaaaa")
 
 func (u *userConnector) RegisterUserRoutes(authRoute *mux.Router,noAuthRoute *mux.Router) {
 	noAuthRoute.HandleFunc("/users/{id}", u.GetUserFromId).Methods("GET")
-	noAuthRoute.HandleFunc("/users", u.AddUser).Methods("POST")
+	noAuthRoute.HandleFunc("/users", u.addUser).Methods("POST")
 	authRoute.Use(u.handler.ValidAuth)
-	authRoute.HandleFunc("/users", u.GetUsers).Methods("GET")
-	authRoute.HandleFunc("/users",u.GetUsersWithPagination).Methods("GET")
-	authRoute.HandleFunc("/users", u.GetUsersWithPagination).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
-	authRoute.HandleFunc("/users/{id}", u.UpdateUser).Methods("PUT")
-	authRoute.HandleFunc("/users/{id}", u.DeleteUser).Methods("DELETE")
+	authRoute.HandleFunc("/users", u.getUsers).Methods("GET")
+	authRoute.HandleFunc("/users",u.getUsersWithPagination).Methods("GET")
+	authRoute.HandleFunc("/users", u.getUsersWithPagination).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
+	authRoute.HandleFunc("/users/{id}", u.updateUser).Methods("PUT")
+	authRoute.HandleFunc("/users/{id}", u.deleteUser).Methods("DELETE")
 }
 
-func(u *userConnector)  GetUsersWithPagination(w http.ResponseWriter, r *http.Request){
+func(u *userConnector) getUsersWithPagination(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
@@ -48,7 +49,7 @@ func(u *userConnector)  GetUsersWithPagination(w http.ResponseWriter, r *http.Re
 	u.userService.GetAllUsers(&users, limit, offset)
 	json.NewEncoder(w).Encode(users)
 }
-func (u *userConnector)  GetUsers(w http.ResponseWriter, r *http.Request){
+func (u *userConnector) getUsers(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 	var users []model.User
@@ -57,19 +58,19 @@ func (u *userConnector)  GetUsers(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(users)
 	
 }
-func(u *userConnector)  AddUser(w http.ResponseWriter, r *http.Request){
+func(u *userConnector) addUser(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 	var user model.User
 	json.NewDecoder(r.Body).Decode(&user)
-	pass,_:=services.HashPassword(user.Password)
+	pass,_:=service.HashPassword(user.Password)
 	user.Password=pass
 	u.userService.AddUser(&user)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
-func(u *userConnector)  GetUserFromId(w http.ResponseWriter, r *http.Request){
+func(u *userConnector) GetUserFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
@@ -82,13 +83,18 @@ func(u *userConnector)  GetUserFromId(w http.ResponseWriter, r *http.Request){
 	
 }
 
-func (u *userConnector)  UpdateUser(w http.ResponseWriter, r *http.Request){
+func (u *userConnector) updateUser(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err := uuid.FromString(values["id"])
+		if err!=nil{
+			fmt.Println(err)
+			return
+		}
 		var updateUser model.User
 		updateUser.ID = id
+		
 		var pass model.Passport
 		if updateUser.Passport == pass {
 			var passport model.Passport
@@ -96,11 +102,12 @@ func (u *userConnector)  UpdateUser(w http.ResponseWriter, r *http.Request){
 			u.passportService.DeletePassport(passport.ID)
 		}
 		json.NewDecoder(r.Body).Decode(&updateUser)
+		updateUser.ID = id
 		u.userService.UpdateUser(updateUser)
 		json.NewEncoder(w).Encode(updateUser)
 	
 }
-func(u *userConnector)  DeleteUser(w http.ResponseWriter, r *http.Request){
+func(u *userConnector)  deleteUser(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)

@@ -1,4 +1,4 @@
-package services
+package service
 
 import ("pass/model"
 repo"pass/repository"
@@ -134,11 +134,19 @@ func CheckPasswordHash(password, hash string) bool {
 
 func (u *UserService) UpdateUser( entity model.User) error{ //becaz db.model(&User{})
 	uow:=repo.NewUnitOfWork(u.DB,false)
-	err:=u.Repo.Update(uow,entity)
+	var queryp []repo.QueryProcessor
+	queryp = append(queryp, repo.Filter("id=?", entity.ID))
+	err:=u.Repo.GetFirst(uow, &entity, queryp)
+	if err!=nil{
+		fmt.Println("user to be updated is not found")
+		return err 
+	}
+
+	err1:=u.Repo.Update(uow,entity)
 	if err!=nil{
 		
 		uow.Complete()
-		return err
+		return err1
 	}
 	u.Logger.Info().Msg("updating users ")
 	uow.Commit()
@@ -148,10 +156,17 @@ func (u *UserService) UpdateUser( entity model.User) error{ //becaz db.model(&Us
 
 func  (u *UserService)DeleteUser( entity model.User) error{
 	uow:=repo.NewUnitOfWork(u.DB,false)
-	err:=u.Repo.Delete(uow,entity)
+	var queryp []repo.QueryProcessor
+	queryp = append(queryp, repo.Filter("id=?", entity.ID))
+	err:=u.Repo.GetFirst(uow, &entity, queryp)
 	if err!=nil{
+		fmt.Println("user to be deleted is not found")
+		return err 
+	}
+	err1:=u.Repo.Delete(uow,entity)
+	if err1!=nil{
 		uow.Complete()
-		return err
+		return err1
 	}
 	uow.Commit()
 	return nil

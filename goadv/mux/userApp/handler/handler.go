@@ -4,7 +4,7 @@ import(
 	"github.com/dgrijalva/jwt-go/request"
 	"time"
 	"reflect"
-	services"pass/services"
+	service"pass/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,9 +17,9 @@ type Response struct {
 }
 
 type Handler struct{
-	userService     *services.UserService
+	userService     *service.UserService
 }
-func Newhandler(userService *services.UserService) *Handler {
+func Newhandler(userService *service.UserService) *Handler {
 	return &Handler{
 		userService:     userService,
 	}
@@ -39,7 +39,7 @@ func (h *Handler)GetTokenHandler(w http.ResponseWriter, r *http.Request){
 
 	if userPassHash,ok:= h.userService.GetPasswordFromEmail(email);ok{
 		
-		if services.CheckPasswordHash(password,userPassHash){
+		if service.CheckPasswordHash(password,userPassHash){
 			// Create a claims map
 			claims := jwt.MapClaims{
 				"email": email,

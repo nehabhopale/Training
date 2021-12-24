@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"fmt"
@@ -72,10 +72,17 @@ func (p *PassportService)GetPassportFromId( out interface{}, ID uuid.UUID, prelo
 
 func (p *PassportService) UpdatePassport(entity model.Passport) error{ //becaz db.model(&User{})
 	uow:=repo.NewUnitOfWork(p.DB,false)
-	err:=p.Repo.Update(uow,entity)
+	var queryp []repo.QueryProcessor
+	queryp = append(queryp, repo.Filter("id=?", entity.ID))
+	err:=p.Repo.GetFirst(uow, &entity, queryp)
 	if err!=nil{
+		fmt.Println("passport to be ted is not found")
+		return err 
+	}
+	err1:=p.Repo.Update(uow,entity)
+	if err1!=nil{
 		uow.Complete()
-		return err
+		return err1
 	}
 	p.Logger.Info().Msg("update passports ")
 	uow.Commit()
@@ -96,13 +103,13 @@ func (p *PassportService) GetPassportByUserId(out *model.Passport, userId uuid.U
 	return nil
 }
 func (p *PassportService) DeletePassport(passId uuid.UUID) error {
-	unit := repo.NewUnitOfWork(p.DB, false)
+	uow := repo.NewUnitOfWork(p.DB, false)
 	DeletedPassport := model.Passport{Base: model.Base{ID: passId}}
-	err := p.Repo.Delete(unit, &DeletedPassport)
+	err := p.Repo.Delete(uow, &DeletedPassport)
 	if err != nil {
-		unit.Complete()
+		uow.Complete()
 		return err
 	}
-	unit.Commit()
+	uow.Commit()
 	return nil
 }

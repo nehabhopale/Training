@@ -13,6 +13,7 @@ type Repository interface {
     Add(uow *UnitOfWork, out interface{}) error
     Update(uow *UnitOfWork, out interface{}) error
     Delete(uow *UnitOfWork, out interface{}) error
+	First(uow *UnitOfWork, out interface{}, id uuid.UUID) error 
 }
 
 // UnitOfWork represents a connection
@@ -56,7 +57,7 @@ func NewRepository() Repository {
 func Paginate(limit int, offset int, count *int) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		if out != nil && count != nil {
-			if err := db.Model(out).Count(count).Error; err != nil {
+			if err := db.Debug().Model(out).Count(count).Error; err != nil {
 				return db, err
 			}
 		}
@@ -94,7 +95,13 @@ func Filter(condition string, args ...interface{}) QueryProcessor {
 		return db, nil
 	}
 }
-
+func (repository *GormRepository) First(uow *UnitOfWork, out interface{}, id uuid.UUID) error {
+	db := uow.DB
+	if err := db.First(out,id).Error; err != nil {
+		return (err)
+	}
+	return nil
+}
 func (repository *GormRepository) GetFirst(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
 	db := uow.DB
 
@@ -107,7 +114,7 @@ func (repository *GormRepository) GetFirst(uow *UnitOfWork, out interface{}, que
 			}
 		}
 	}
-	if err := db.First(out).Error; err != nil {
+	if err := db.Debug().First(out).Error; err != nil {
 		return (err)
 	}
 	return nil
@@ -153,7 +160,7 @@ func (repository *GormRepository) GetAllForTenant(uow *UnitOfWork, out interface
 
 // Add specified Entity
 func (repository *GormRepository) Add(uow *UnitOfWork, entity interface{}) error {
-    return uow.DB.Create(entity).Error
+    return uow.DB.Debug().Create(entity).Error
 }
 //count specified entity
 func (repository *GormRepository) Count(uow *UnitOfWork, entity interface{},count interface{}) error {
@@ -161,7 +168,7 @@ func (repository *GormRepository) Count(uow *UnitOfWork, entity interface{},coun
 }
 // Update specified Entity
 func (repository *GormRepository) Update(uow *UnitOfWork, entity interface{}) error {
-    return uow.DB.Model(entity).Update(entity).Error
+    return uow.DB.Debug().Model(entity).Update(entity).Error
 }
 
 // Delete specified Entity

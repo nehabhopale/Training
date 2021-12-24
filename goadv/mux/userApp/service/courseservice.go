@@ -1,4 +1,4 @@
-package services
+package service
 
 import ("pass/model"
 repo"pass/repository"
@@ -70,6 +70,13 @@ func (c *CourseService) GetCourseFromId(out *model.Course, ID uuid.UUID, preload
 
 func (c *CourseService) UpdateCourse(entity model.Course) error{
 	uow:=repo.NewUnitOfWork(c.DB,false)
+	// var queryp []repo.QueryProcessor
+	// queryp = append(queryp, repo.Filter("id=?", entity.ID))
+	// err1:=c.Repo.GetFirst(uow, &entity, queryp)
+	// if err1!=nil{
+	// 	fmt.Println("course to be updated is not found")
+	// 	return err1
+	// }
 	err:=c.Repo.Update(uow,entity)
 	if err!=nil{
 		uow.Complete()
@@ -82,10 +89,17 @@ func (c *CourseService) UpdateCourse(entity model.Course) error{
 
 func (c *CourseService) DeleteCourse(entity model.Course)error  {
 	uow:=repo.NewUnitOfWork(c.DB,false)
-	err:=c.Repo.Delete(uow,entity)
+	var queryp []repo.QueryProcessor
+	queryp = append(queryp, repo.Filter("id=?", entity.ID))
+	err:=c.Repo.GetFirst(uow, &entity, queryp)
 	if err!=nil{
+		fmt.Println("course to be deleted is not found")
+		return err 
+	}
+	err1:=c.Repo.Delete(uow,entity)
+	if err1!=nil{
 		uow.Complete()
-		return err
+		return err1
 	}
 	c.Logger.Info().Msg("delete courses")
 	uow.Commit()

@@ -13,3 +13,4 @@ let acc =new Account("123","i123")
 let bank=new mybank("sbi","mum") //defualt   bank 
 let cust=new Customer("neha","b")
 console.log({acc,bank,cust})
+ ///

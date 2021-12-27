@@ -36,6 +36,7 @@ func (w *walletFacade) AddMoneyToWallet(accNo uint64, securityCode uint16, amoun
 		w.wallet.Credit(amount)
 		w.notification.SendWalletCreditNotification()
 		w.ledger.MakeEntry(accNo, "credit", amount)
+		
 	}
 	fmt.Println(w.wallet.GetBalance())
 

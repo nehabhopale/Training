@@ -98,6 +98,7 @@ func (u *userConnector) updateUser(w http.ResponseWriter, r *http.Request){
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}

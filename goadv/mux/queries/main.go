@@ -34,4 +34,9 @@ func main(){
 	emp.DispAllName()
 	emp.GetRegionsNoCountry()
 	emp.GetCountryNoState()
+	emp.DispRCSName()
+	emp.GetData()
+	emp.InsertSwabhavLocation()
+	emp.InsertFoo()
+
 }

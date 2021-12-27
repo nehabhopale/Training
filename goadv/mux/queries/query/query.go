@@ -236,11 +236,46 @@ func (e *Emp)GetCountryNoState(){
 	}
 
 }
-// func(e *Emp)DispRCSName(){
-// 	uow := repo.NewUnitOfWork(e.DB, true)
-// 	var emp []model.Employee
-// 	var queryp []repo.QueryProcessor
-// 	queryp=append(queryp,repo.Select("countries","countries.country_name as CNAME,locations.state_province as STATEP,regions.region_name as RNAME"))
-// 	queryp=append(queryp,repo.Joins("INNER JOIN LOCATIONS ON COUNTRIES.COUNTRY_ID=LOCATIONS.COUNTRY_ID"))
-// 	queryp=append(queryp,repo.Joins("INNER JOIN REGIONS ON COUNTRIES.REGION_ID=REGIONS.REGION_ID"))
-// }	
+func(e *Emp)DispRCSName(){
+	uow := repo.NewUnitOfWork(e.DB, true)
+	var emp []model.Employee
+	var queryp []repo.QueryProcessor
+	queryp=append(queryp,repo.Select("countries","countries.country_name as CNAME,locations.state_province as STATEP,regions.region_name as RNAME"))
+	queryp=append(queryp,repo.Joins("INNER JOIN LOCATIONS ON COUNTRIES.COUNTRY_ID=LOCATIONS.COUNTRY_ID"))
+	queryp=append(queryp,repo.Joins("INNER JOIN REGIONS ON COUNTRIES.REGION_ID=REGIONS.REGION_ID"))
+	e.Repo.GetAll(uow, &emp, queryp)
+	for _,emp:=range(emp){
+		fmt.Println("country name->",emp.CNAME,"state provience->",emp.STATEP,"rname->",emp.RNAME)
+	}
+}	
+func (e *Emp) InsertSwabhavLocation() {
+	//Make an insert of swabhav Techlabs in location/state tables map to india and asia.
+	uow := repo.NewUnitOfWork(e.DB, true)
+	e.DB.AutoMigrate(&model.Location{})
+	Location := model.NewLocation(2, "mum", "8796", "Mumbai", "Maharashtra","IN")
+	e.Repo.Add(uow, &Location)
+}
+
+func(e *Emp)GetData(){
+	//Filter details based on mumbai location
+	uow := repo.NewUnitOfWork(e.DB, true)
+	var emp []model.Employee
+	var queryp []repo.QueryProcessor
+	queryp=append(queryp,repo.Select("locations","location_id as LID ,street_address as SADD,postal_code as PCODE,city as CITY,state_province as STATEP,country_id as CID"))
+	queryp=append(queryp,repo.Filter("CITY=?", "Mumbai"))
+	e.Repo.GetAll(uow, &emp, queryp)
+	for _,emp:=range(emp){
+		fmt.Println("location_id->",emp.LID,"street_address->",emp.SADD,"postal_code->",emp.PCODE,"city->",emp.CITY,"state_province->",emp.STATEP,"country_id->",emp.CID)
+	}
+}
+
+func (e *Emp) InsertFoo() {
+	//create a foo table and insert values of different data
+	unit := repo.NewUnitOfWork(e.DB, true)
+
+	e.DB.AutoMigrate(&model.Foo{})
+	foo1:=model.NewFoo("neha","lname")
+	e.Repo.Add(unit, foo1)
+	foo2 :=model.NewFoo("pooja","b")
+	e.Repo.Add(unit, foo2)
+}

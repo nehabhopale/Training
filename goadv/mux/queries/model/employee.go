@@ -1,9 +1,5 @@
 package model
 
-import (
-	//"time"
-)
-
 type Employee struct {
 	
 	COUNT int `gorm:"column:COUNT"`
@@ -19,7 +15,9 @@ type Employee struct {
 	CID string `gorm:"column:CID"`
 	CNAME string `gorm:"column:CNAME"`
 	STATEP string `gorm:"column:STATEP"`
-	
-	
+	LID  int  `gorm:"column:LID"`
+	SADD string `gorm:"column:SADD"`
+	PCODE string `gorm:"column:PCODE"`
+	CITY string `gorm:"column:CITY"`
 
 }

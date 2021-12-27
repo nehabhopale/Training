@@ -59,7 +59,16 @@ func (c *courseConnector)getAllCourses(w http.ResponseWriter, r *http.Request){
 func (c *courseConnector)getCourseFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err:= uuid.FromString(values["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		
+		if !(c.courseService.CheckCourse(id)){
+			json.NewEncoder(w).Encode("course doesn't exists")
+			return 
+		}
 		var course model.Course
 		course.ID=id
 		var str1 []string
@@ -73,7 +82,12 @@ func (c *courseConnector)updateCourse(w http.ResponseWriter, r *http.Request){
 		values := mux.Vars(r)
 		id, err:= uuid.FromString(values["id"])
 		if err!=nil{
-			fmt.Println(err)
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		
+		if !(c.courseService.CheckCourse(id)){
+			json.NewEncoder(w).Encode("course doesn't exists")
 			return 
 		}
 		var updateCourse model.Course
@@ -86,7 +100,16 @@ func (c *courseConnector)updateCourse(w http.ResponseWriter, r *http.Request){
 func (c *courseConnector)deleteCourse(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err := uuid.FromString(values["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		
+		if !(c.courseService.CheckCourse(id)){
+			json.NewEncoder(w).Encode("course doesn't exists")
+			return 
+		}
 		var deleteCourse model.Course
 		deleteCourse.ID = id
 		json.NewDecoder(r.Body).Decode(&deleteCourse)
@@ -94,4 +117,3 @@ func (c *courseConnector)deleteCourse(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(deleteCourse)
 	
 }
-

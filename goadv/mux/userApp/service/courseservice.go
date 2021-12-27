@@ -70,13 +70,6 @@ func (c *CourseService) GetCourseFromId(out *model.Course, ID uuid.UUID, preload
 
 func (c *CourseService) UpdateCourse(entity model.Course) error{
 	uow:=repo.NewUnitOfWork(c.DB,false)
-	// var queryp []repo.QueryProcessor
-	// queryp = append(queryp, repo.Filter("id=?", entity.ID))
-	// err1:=c.Repo.GetFirst(uow, &entity, queryp)
-	// if err1!=nil{
-	// 	fmt.Println("course to be updated is not found")
-	// 	return err1
-	// }
 	err:=c.Repo.Update(uow,entity)
 	if err!=nil{
 		uow.Complete()
@@ -89,13 +82,6 @@ func (c *CourseService) UpdateCourse(entity model.Course) error{
 
 func (c *CourseService) DeleteCourse(entity model.Course)error  {
 	uow:=repo.NewUnitOfWork(c.DB,false)
-	var queryp []repo.QueryProcessor
-	queryp = append(queryp, repo.Filter("id=?", entity.ID))
-	err:=c.Repo.GetFirst(uow, &entity, queryp)
-	if err!=nil{
-		fmt.Println("course to be deleted is not found")
-		return err 
-	}
 	err1:=c.Repo.Delete(uow,entity)
 	if err1!=nil{
 		uow.Complete()
@@ -104,5 +90,14 @@ func (c *CourseService) DeleteCourse(entity model.Course)error  {
 	c.Logger.Info().Msg("delete courses")
 	uow.Commit()
 	return nil
+}
+func (c*CourseService)CheckCourse(id uuid.UUID)bool {
+	var courses model.Course
+	var str1 []string
+	err1:=(c.GetCourseFromId(&courses,id,str1))
+	if err1!=nil{
+		return false
+	}
+	return true
 }
 

@@ -9,7 +9,7 @@ import (
 	handler"pass/handler"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
-	"fmt"
+	//"fmt"
 
 )
 
@@ -74,7 +74,16 @@ func(u *userConnector) GetUserFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err:= uuid.FromString(values["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		
+		if !(u.userService.CheckUser(id)){
+			json.NewEncoder(w).Encode("user doesn't exists")
+			return 
+		}
 		var user model.User
 		str1 :=[]string{"Passport","Courses","Hobbies"}
 		u.userService.GetUserFromId(&user,id,str1)
@@ -89,29 +98,42 @@ func (u *userConnector) updateUser(w http.ResponseWriter, r *http.Request){
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
-			fmt.Println(err)
-			return
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
 		}
-		var updateUser model.User
-		updateUser.ID = id
+		var updatedUser model.User
+		json.NewDecoder(r.Body).Decode(&updatedUser)
+		updatedUser.ID = id
 		
 		var pass model.Passport
-		if updateUser.Passport == pass {
+		if updatedUser.Passport == pass {
 			var passport model.Passport
 			u.passportService.GetPassportByUserId(&passport, id)
 			u.passportService.DeletePassport(passport.ID)
 		}
-		json.NewDecoder(r.Body).Decode(&updateUser)
-		updateUser.ID = id
-		u.userService.UpdateUser(updateUser)
-		json.NewEncoder(w).Encode(updateUser)
+		if !(u.userService.CheckUser(id)){
+			json.NewEncoder(w).Encode("user doesn't exists")
+			return 
+		}
+		
+		u.userService.UpdateUser(&updatedUser)
+		json.NewEncoder(w).Encode(updatedUser)
 	
 }
 func(u *userConnector)  deleteUser(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err := uuid.FromString(values["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		
+		if !(u.userService.CheckUser(id)){
+			json.NewEncoder(w).Encode("user doesn't exists")
+			return 
+		}
 		var deleteUser model.User
 		deleteUser.ID = id
 		json.NewDecoder(r.Body).Decode(&deleteUser)

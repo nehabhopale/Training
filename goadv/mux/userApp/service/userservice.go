@@ -132,18 +132,10 @@ func CheckPasswordHash(password, hash string) bool {
     return err == nil
 }
 
-func (u *UserService) UpdateUser( entity model.User) error{ //becaz db.model(&User{})
+func (u *UserService) UpdateUser( entity *model.User) error{ //becaz db.model(&User{})
 	uow:=repo.NewUnitOfWork(u.DB,false)
-	var queryp []repo.QueryProcessor
-	queryp = append(queryp, repo.Filter("id=?", entity.ID))
-	err:=u.Repo.GetFirst(uow, &entity, queryp)
-	if err!=nil{
-		fmt.Println("user to be updated is not found")
-		return err 
-	}
-
 	err1:=u.Repo.Update(uow,entity)
-	if err!=nil{
+	if err1!=nil{
 		
 		uow.Complete()
 		return err1
@@ -156,13 +148,7 @@ func (u *UserService) UpdateUser( entity model.User) error{ //becaz db.model(&Us
 
 func  (u *UserService)DeleteUser( entity model.User) error{
 	uow:=repo.NewUnitOfWork(u.DB,false)
-	var queryp []repo.QueryProcessor
-	queryp = append(queryp, repo.Filter("id=?", entity.ID))
-	err:=u.Repo.GetFirst(uow, &entity, queryp)
-	if err!=nil{
-		fmt.Println("user to be deleted is not found")
-		return err 
-	}
+	
 	err1:=u.Repo.Delete(uow,entity)
 	if err1!=nil{
 		uow.Complete()
@@ -178,8 +164,16 @@ func (u *UserService) GetUsersCount() int {
 	var users []model.User
 	var count int
 	u.Repo.Count(uow,&users,&count)
-	//u.DB.Debug().Model(&users).Count(&count)
 	uow.Commit()
 	fmt.Println(count)
 	return count
+}
+func (u *UserService)CheckUser(id uuid.UUID)bool {
+	var users model.User
+	str1 :=[]string{"Passport","Courses","Hobbies"}
+	err1:=(u.GetUserFromId(&users,id,str1))
+	if err1!=nil{
+		return false
+	}
+	return true
 }

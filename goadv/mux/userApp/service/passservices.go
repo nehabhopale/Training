@@ -72,13 +72,6 @@ func (p *PassportService)GetPassportFromId( out interface{}, ID uuid.UUID, prelo
 
 func (p *PassportService) UpdatePassport(entity model.Passport) error{ //becaz db.model(&User{})
 	uow:=repo.NewUnitOfWork(p.DB,false)
-	var queryp []repo.QueryProcessor
-	queryp = append(queryp, repo.Filter("id=?", entity.ID))
-	err:=p.Repo.GetFirst(uow, &entity, queryp)
-	if err!=nil{
-		fmt.Println("passport to be ted is not found")
-		return err 
-	}
 	err1:=p.Repo.Update(uow,entity)
 	if err1!=nil{
 		uow.Complete()
@@ -112,4 +105,13 @@ func (p *PassportService) DeletePassport(passId uuid.UUID) error {
 	}
 	uow.Commit()
 	return nil
+}
+func (p *PassportService)CheckPassport(id uuid.UUID)bool {
+	var passports model.Passport
+	var str1 []string
+	err1:=(p.GetPassportFromId(&passports,id,str1))
+	if err1!=nil{
+		return false
+	}
+	return true
 }

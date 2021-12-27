@@ -8,6 +8,7 @@ import(
 	"fmt"
 	"log"
 	"net/http"
+	"pass/model"
 	"encoding/json"
 )
 var secretKey = []byte("nehaaaaaa")
@@ -32,8 +33,12 @@ func (h *Handler)GetTokenHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	log.Println(r.Form)
-	email := r.Form.Get("email")
-	password := r.Form.Get("password")
+	var login model.Login
+	json.NewDecoder(r.Body).Decode(&login)
+	email:=login.Email
+	password:=login.Password
+	// email := r.Form.Get("email")
+	// password := r.Form.Get("password")
 	log.Println("email ", email)
 	log.Println("password", password)
 

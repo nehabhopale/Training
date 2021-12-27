@@ -45,7 +45,15 @@ func (h *hobbyConnector)getHobbies(w http.ResponseWriter, r *http.Request){
 func (h *hobbyConnector) getHobby(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	id, _ := uuid.FromString(params["id"])
+	id, err:= uuid.FromString(params["id"])
+	if err!=nil{
+		json.NewEncoder(w).Encode("incorrect id")
+		return 
+	}
+	if !(h.hobbyService.CheckHobby(id)){
+		json.NewEncoder(w).Encode("hobby doesn't exists")
+		return 
+	}
 	var hobby model.Hobby
 	var str1 []string
 	h.hobbyService.GetHobbyFromId(&hobby, id,str1)
@@ -56,7 +64,16 @@ func (h *hobbyConnector) getHobby(w http.ResponseWriter, r *http.Request){
 func (h *hobbyConnector) updateHobby(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	id, _ := uuid.FromString(params["id"])
+	id, err := uuid.FromString(params["id"])
+	if err!=nil{
+		json.NewEncoder(w).Encode("incorrect id")
+		return 
+	}
+	
+	if !(h.hobbyService.CheckHobby(id)){
+		json.NewEncoder(w).Encode("hobby doesn't exists")
+		return 
+	}
 	var updatedHobby model.Hobby
 	updatedHobby.ID = id
 	json.NewDecoder(r.Body).Decode(&updatedHobby)

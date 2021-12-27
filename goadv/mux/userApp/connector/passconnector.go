@@ -28,7 +28,7 @@ func(p *passConnector) RegisterPassportRoutes(authRoute *mux.Router,nonAuthRoute
 	authRoute.Use(p.handler.ValidAuth)
 	authRoute.HandleFunc("/passports", p.getPassports).Methods("GET")
 	authRoute.HandleFunc("/allpassports", p.getAllPassports).Methods("GET")
-	authRoute.HandleFunc("/passports", p.getAllPassports).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
+	authRoute.HandleFunc("/allpassports", p.getAllPassports).Queries("limit", "{limit:[0-9]+}", "pageNo", "{pageNo:[0-9]+}").Methods("GET")
 	authRoute.HandleFunc("/passports/{id}",p.updatePassport).Methods("PUT")
 	authRoute.HandleFunc("/passports/{id}", p.getPassportFromId).Methods("GET")
 	authRoute.HandleFunc("/users/{id}/passports",p.GetPassportByUserId).Methods("GET")
@@ -58,7 +58,15 @@ func(p *passConnector) getPassportFromId(w http.ResponseWriter, r *http.Request)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err := uuid.FromString(values["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		if !(p.passportService.CheckPassport(id)){
+			json.NewEncoder(w).Encode("passport doesn't exists")
+			return 
+		}
 		var passport model.Passport
 		passport.ID=id
 		var str1 []string
@@ -68,14 +76,23 @@ func(p *passConnector) getPassportFromId(w http.ResponseWriter, r *http.Request)
 
 func(p *passConnector) updatePassport(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
-		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
-		var updatePassport model.Passport
-		updatePassport.ID = id
-		json.NewDecoder(r.Body).Decode(&updatePassport)
-		p.passportService.UpdatePassport(updatePassport)
-		json.NewEncoder(w).Encode(updatePassport)
+		params := mux.Vars(r)
+		id, err := uuid.FromString(params["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		
+		if !(p.passportService.CheckPassport(id)){
+			json.NewEncoder(w).Encode("passport doesn't exists")
+			return 
+		}
+		var updatedPassport model.Passport
+		json.NewDecoder(r.Body).Decode(&updatedPassport)
+		updatedPassport.ID = id
+		
+		p.passportService.UpdatePassport(updatedPassport)
+		json.NewEncoder(w).Encode(updatedPassport)
 	
 }
 
@@ -94,7 +111,15 @@ func (p *passConnector)DeletePassport(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
 		values := mux.Vars(r)
-		id, _ := uuid.FromString(values["id"])
+		id, err := uuid.FromString(values["id"])
+		if err!=nil{
+			json.NewEncoder(w).Encode("incorrect id")
+			return 
+		}
+		if !(p.passportService.CheckPassport(id)){
+			json.NewEncoder(w).Encode("Passport doesn't exists")
+			return 
+		}
 		p.passportService.DeletePassport(id)
 		json.NewEncoder(w).Encode("delete passport done")
 	

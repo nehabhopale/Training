@@ -1,0 +1,11 @@
+<p>test works!</p>
+<p *ngIf="condition">Content to render when condition is true.</p> 
+<p *ngIf="(a % 2)===0;else elseBlock">number is even</p> 
+<ng-template #elseBlock>number is odd.</ng-template> 
+<br>
+
+<button (click)="showMe()">show</button>
+<button (click)="hideMe()">hide</button>
+
+<h1 *ngIf="showtime">{{now}}</h1> 
+

@@ -31,7 +31,7 @@ func main(){
 	emp.GetDepWithNoEmp()
 	emp.DispEmpBoss()
 	emp.DispAllEmpBoss()
-	emp.DispAllName()
+	 emp.DispAllName()
 	emp.GetRegionsNoCountry()
 	emp.GetCountryNoState()
 	emp.DispRCSName()

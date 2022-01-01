@@ -306,16 +306,3 @@ func (e *Emp) InsertFoo() {
 	foo2 :=model.NewFoo("pooja","b")
 	e.Repo.Add(unit, foo2)
 }
-// func(e *Emp) ShowIndex(){
-// 	uow := repo.NewUnitOfWork(e.DB, true)
-// 	var emp []model.Employee
-// 	var queryp []repo.QueryProcessor
-// 	queryp=append(queryp,repo.ShowIndex("show index from employees",emp))
-// 	e.Repo.GetAll(uow, &emp, queryp)
-// 	fmt.Println(emp)
-// 	for _,emp:=range(emp){
-		
-// 		fmt.Println("country name->",emp.CNAME)
-// 	}
-
-// }

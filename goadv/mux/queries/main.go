@@ -38,6 +38,6 @@ func main(){
 	// emp.GetData()
 	// emp.InsertSwabhavLocation()
 	// emp.InsertFoo()
-	//emp.ShowIndex()
+	
 
 }

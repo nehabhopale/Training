@@ -99,7 +99,7 @@ func(e *Emp)GetDeptEmpWithCondition(){
 	queryp=append(queryp,repo.Filter("DEPTNO = ? OR DEPTNO = ?",10,20))
 	queryp=append(queryp,repo.Group("DEPTNO"))
 	queryp=append(queryp,repo.Having("COUNT(*) >= 2"))
-	queryp=append(queryp,repo.Order("COUNT(*)",true))
+	queryp=append(queryp,repo.Order("COUNT(*) desc",true))
 	e.Repo.GetAll(uow, &emp, queryp)
 	for _,emp:=range(emp){
 		fmt.Println("count is",emp.COUNT,"for dept no",emp.DEPTNO)
@@ -306,3 +306,16 @@ func (e *Emp) InsertFoo() {
 	foo2 :=model.NewFoo("pooja","b")
 	e.Repo.Add(unit, foo2)
 }
+// func(e *Emp) ShowIndex(){
+// 	uow := repo.NewUnitOfWork(e.DB, true)
+// 	var emp []model.Employee
+// 	var queryp []repo.QueryProcessor
+// 	queryp=append(queryp,repo.ShowIndex("show index from employees",emp))
+// 	e.Repo.GetAll(uow, &emp, queryp)
+// 	fmt.Println(emp)
+// 	for _,emp:=range(emp){
+		
+// 		fmt.Println("country name->",emp.CNAME)
+// 	}
+
+// }

@@ -150,6 +150,12 @@ func Select(tablename string,value string) QueryProcessor {
 		return db, nil
 	}
 }
+func ShowIndex(value string,tablename interface{} )QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		db = db.Debug().Raw(value).Scan(&tablename)
+		return db, nil
+	}
+}
 // GetAll retrieves all the records for a specified entity and returns it
 func (repository *GormRepository) GetAll(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
 	db := uow.DB

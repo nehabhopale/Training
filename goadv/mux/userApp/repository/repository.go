@@ -124,7 +124,7 @@ func PreloadAssociations(preloadAssociations []string) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		if preloadAssociations != nil {
 			for _, association := range preloadAssociations {
-				db = db.Preload(association)
+				db = db.Debug().Preload(association)
 			}
 		}
 		return db, nil
@@ -173,5 +173,5 @@ func (repository *GormRepository) Update(uow *UnitOfWork, entity interface{}) er
 
 // Delete specified Entity
 func (repository *GormRepository) Delete(uow *UnitOfWork, entity interface{}) error {
-    return uow.DB.Delete(entity).Error
+    return uow.DB.Debug().Delete(entity).Error
 }

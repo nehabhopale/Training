@@ -60,7 +60,7 @@ func (u *userConnector) getUsers(w http.ResponseWriter, r *http.Request){
 }
 func(u *userConnector) addUser(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
+	//w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 	var user model.User
 	json.NewDecoder(r.Body).Decode(&user)
 	pass,_:=service.HashPassword(user.Password)
@@ -72,15 +72,17 @@ func(u *userConnector) addUser(w http.ResponseWriter, r *http.Request){
 
 func(u *userConnector) GetUserFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
+		//w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, err:= uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		
 		if !(u.userService.CheckUser(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("user doesn't exists")
 			return 
 		}
@@ -94,7 +96,7 @@ func(u *userConnector) GetUserFromId(w http.ResponseWriter, r *http.Request){
 
 func (u *userConnector) updateUser(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
+		//w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
@@ -118,15 +120,16 @@ func (u *userConnector) updateUser(w http.ResponseWriter, r *http.Request){
 		}
 		
 		u.userService.UpdateUser(&updatedUser)
-		json.NewEncoder(w).Encode(updatedUser)
+		json.NewEncoder(w).Encode("updatedUser")
 	
 }
 func(u *userConnector)  deleteUser(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
+		//w.Header().Set("User-Count", strconv.Itoa(u.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
@@ -139,7 +142,7 @@ func(u *userConnector)  deleteUser(w http.ResponseWriter, r *http.Request){
 		deleteUser.ID = id
 		json.NewDecoder(r.Body).Decode(&deleteUser)
 		u.userService.DeleteUser(deleteUser)
-		json.NewEncoder(w).Encode(deleteUser)
+		json.NewEncoder(w).Encode("deleteUser")
 	
 }
 

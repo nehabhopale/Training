@@ -99,7 +99,7 @@ func(e *Emp)GetDeptEmpWithCondition(){
 	queryp=append(queryp,repo.Filter("DEPTNO = ? OR DEPTNO = ?",10,20))
 	queryp=append(queryp,repo.Group("DEPTNO"))
 	queryp=append(queryp,repo.Having("COUNT(*) >= 2"))
-	queryp=append(queryp,repo.Order("COUNT(*) DESC",true))
+	queryp=append(queryp,repo.Order("COUNT(*)",true))
 	e.Repo.GetAll(uow, &emp, queryp)
 	for _,emp:=range(emp){
 		fmt.Println("count is",emp.COUNT,"for dept no",emp.DEPTNO)
@@ -116,6 +116,12 @@ func(e *Emp)GetName(){
 	queryp=append(queryp,repo.Joins("left join employees on employees.DEPTNO = dept.DEPTNO"))
 	e.Repo.GetAll(uow, &emp, queryp)
 	for _,emp:=range(emp){
+		if emp.EMPNAME==""{
+			emp.EMPNAME="null"
+		}
+		if emp.DEPNAME==""{
+			emp.DEPNAME="null"
+		}
 		fmt.Println("empname is->",emp.EMPNAME,"having department->",emp.DEPNAME)
 	}
 }
@@ -263,6 +269,9 @@ func(e *Emp)DispRCSName(){
 	queryp=append(queryp,repo.Joins("INNER JOIN REGIONS ON COUNTRIES.REGION_ID=REGIONS.REGION_ID"))
 	e.Repo.GetAll(uow, &emp, queryp)
 	for _,emp:=range(emp){
+		if emp.STATEP==""{
+			emp.STATEP="null"
+		}
 		fmt.Println("country name->",emp.CNAME,"state provience->",emp.STATEP,"rname->",emp.RNAME)
 	}
 }	

@@ -44,7 +44,7 @@ func (p *passConnector)getPassports(w http.ResponseWriter, r *http.Request){
 }
 func(p *passConnector) getAllPassports(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
+	//w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
 	pageNo, _ := strconv.Atoi(r.FormValue("pageNo"))
 	offset := limit * (pageNo - 1)
@@ -56,14 +56,16 @@ func(p *passConnector) getAllPassports(w http.ResponseWriter, r *http.Request){
 }
 func(p *passConnector) getPassportFromId(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
+		//w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		if !(p.passportService.CheckPassport(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("passport doesn't exists")
 			return 
 		}
@@ -79,11 +81,13 @@ func(p *passConnector) updatePassport(w http.ResponseWriter, r *http.Request){
 		params := mux.Vars(r)
 		id, err := uuid.FromString(params["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		
 		if !(p.passportService.CheckPassport(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("passport doesn't exists")
 			return 
 		}
@@ -92,7 +96,7 @@ func(p *passConnector) updatePassport(w http.ResponseWriter, r *http.Request){
 		updatedPassport.ID = id
 		
 		p.passportService.UpdatePassport(updatedPassport)
-		json.NewEncoder(w).Encode(updatedPassport)
+		json.NewEncoder(w).Encode("updatedPassport")
 	
 }
 
@@ -109,14 +113,16 @@ func (p *passConnector)GetPassportByUserId(w http.ResponseWriter, r *http.Reques
 
 func (p *passConnector)DeletePassport(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
+		//w.Header().Set("User-Count", strconv.Itoa(p.userService.GetUsersCount()))
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		if !(p.passportService.CheckPassport(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("Passport doesn't exists")
 			return 
 		}

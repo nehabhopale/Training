@@ -35,6 +35,9 @@ func (h *hobbyConnector)getHobbies(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
 	pageNo, _ := strconv.Atoi(r.FormValue("pageNo"))
+	if limit<0{
+		limit=-(limit)
+	}
 	offset := limit * (pageNo - 1)
 	var hobbies []model.Hobby
 	h.hobbyService.GetHobbies(&hobbies, limit, offset)
@@ -47,10 +50,12 @@ func (h *hobbyConnector) getHobby(w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 	id, err:= uuid.FromString(params["id"])
 	if err!=nil{
+		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode("incorrect id")
 		return 
 	}
 	if !(h.hobbyService.CheckHobby(id)){
+		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode("hobby doesn't exists")
 		return 
 	}
@@ -66,11 +71,13 @@ func (h *hobbyConnector) updateHobby(w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 	id, err := uuid.FromString(params["id"])
 	if err!=nil{
+		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode("incorrect id")
 		return 
 	}
 	
 	if !(h.hobbyService.CheckHobby(id)){
+		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode("hobby doesn't exists")
 		return 
 	}
@@ -78,6 +85,6 @@ func (h *hobbyConnector) updateHobby(w http.ResponseWriter, r *http.Request){
 	updatedHobby.ID = id
 	json.NewDecoder(r.Body).Decode(&updatedHobby)
 	h.hobbyService.UpdateHobby(updatedHobby)
-	json.NewEncoder(w).Encode(updatedHobby)
+	json.NewEncoder(w).Encode("updatedHobby")
 	
 }

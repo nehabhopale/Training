@@ -36,10 +36,6 @@ func(c *courseConnector)addCourse(w http.ResponseWriter, r *http.Request){
 	var course model.Course
 	json.NewDecoder(r.Body).Decode(&course)
 	c.courseService.AddCourse(&course)
-	// err2:=db.Debug().Model(course).Association("Users").Error
-	// if err2!=nil{
-	// 	fmt.Println("error in association------>",err2)
-	// }
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(course)
 	
@@ -61,11 +57,13 @@ func (c *courseConnector)getCourseFromId(w http.ResponseWriter, r *http.Request)
 		values := mux.Vars(r)
 		id, err:= uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		
 		if !(c.courseService.CheckCourse(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("course doesn't exists")
 			return 
 		}
@@ -82,11 +80,13 @@ func (c *courseConnector)updateCourse(w http.ResponseWriter, r *http.Request){
 		values := mux.Vars(r)
 		id, err:= uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		
 		if !(c.courseService.CheckCourse(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("course doesn't exists")
 			return 
 		}
@@ -94,7 +94,7 @@ func (c *courseConnector)updateCourse(w http.ResponseWriter, r *http.Request){
 		updateCourse.ID = id
 		json.NewDecoder(r.Body).Decode(&updateCourse)
 		c.courseService.UpdateCourse(updateCourse)
-		json.NewEncoder(w).Encode(updateCourse)
+		json.NewEncoder(w).Encode("updateCourse")
 
 }
 func (c *courseConnector)deleteCourse(w http.ResponseWriter, r *http.Request){
@@ -102,11 +102,13 @@ func (c *courseConnector)deleteCourse(w http.ResponseWriter, r *http.Request){
 		values := mux.Vars(r)
 		id, err := uuid.FromString(values["id"])
 		if err!=nil{
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("incorrect id")
 			return 
 		}
 		
 		if !(c.courseService.CheckCourse(id)){
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode("course doesn't exists")
 			return 
 		}
@@ -114,6 +116,6 @@ func (c *courseConnector)deleteCourse(w http.ResponseWriter, r *http.Request){
 		deleteCourse.ID = id
 		json.NewDecoder(r.Body).Decode(&deleteCourse)
 		c.courseService.DeleteCourse(deleteCourse)
-		json.NewEncoder(w).Encode(deleteCourse)
+		json.NewEncoder(w).Encode("deleteCourse")
 	
 }

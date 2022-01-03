@@ -10,7 +10,7 @@ export class SpinnerComponent implements OnInit {
   images:string[]=['./assets/n1.jfif','./assets/n2.jfif'];
   actualImage: string;
   Counter = 0;
-
+ 
 
   constructor() {
     // this.imageUrl:this.images[0]
@@ -23,6 +23,7 @@ export class SpinnerComponent implements OnInit {
       this.actualImage = this.images[this.Counter];
     }, 2000);
    }
+   
 
   ngOnInit(): void {
    

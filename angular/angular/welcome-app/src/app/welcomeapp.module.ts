@@ -7,6 +7,7 @@ import { TestComponent } from './my-test/mytest.component';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
 import { SpinnerComponent } from './spinner/spinner.component';
+import { ChangeimageComponent } from './changeimage/changeimage.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { SpinnerComponent } from './spinner/spinner.component';
     TestComponent,
     FooterComponent,
     HeaderComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    ChangeimageComponent
   ],
   imports: [
     BrowserModule,

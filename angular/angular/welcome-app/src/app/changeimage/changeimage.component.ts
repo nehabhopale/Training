@@ -18,9 +18,9 @@ export class ChangeimageComponent implements OnInit {
   toggle(){
     this.Hidespinner=!this.Hidespinner
     if(this.Hidespinner){
-      this.buttonName="hide"
-    }else{
       this.buttonName="show"
+    }else{
+      this.buttonName="hide"
     }
 }
 }

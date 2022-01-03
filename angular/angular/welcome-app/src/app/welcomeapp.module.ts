@@ -8,6 +8,7 @@ import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { ChangeimageComponent } from './changeimage/changeimage.component';
+import { LoopingComponent } from './looping/looping.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { ChangeimageComponent } from './changeimage/changeimage.component';
     FooterComponent,
     HeaderComponent,
     SpinnerComponent,
-    ChangeimageComponent
+    ChangeimageComponent,
+    LoopingComponent
   ],
   imports: [
     BrowserModule,

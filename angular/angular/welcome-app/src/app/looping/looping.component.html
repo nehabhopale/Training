@@ -1,0 +1,11 @@
+<div>
+    <ul *ngFor="let item of makeArray(10); index as i; odd as isOdd">
+        <li [style.color]="isOdd ? 'red':'green'">
+            text - {{i}} - {{isOdd}}
+            
+          </li>
+    </ul>
+    <ul *ngFor="let student of ArrayOfStudents(); index as i; odd as isOdd">
+        <li > {{student.fname}} </li>
+    </ul>
+</div>

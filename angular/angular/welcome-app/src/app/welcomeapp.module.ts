@@ -9,6 +9,7 @@ import { HeaderComponent } from './header/header.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { ChangeimageComponent } from './changeimage/changeimage.component';
 import { LoopingComponent } from './looping/looping.component';
+import { GreetingComponent } from './greeting/greeting.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { LoopingComponent } from './looping/looping.component';
     HeaderComponent,
     SpinnerComponent,
     ChangeimageComponent,
-    LoopingComponent
+    LoopingComponent,
+    GreetingComponent
   ],
   imports: [
     BrowserModule,

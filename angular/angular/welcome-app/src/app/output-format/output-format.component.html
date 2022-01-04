@@ -1,0 +1,16 @@
+<div>
+   
+    <input type="text" [(ngModel)]="data" placeholder="Enter a text"><br/>
+    
+    <input type="text" [(ngModel)]="fontSize" placeholder="Enter a Font Size"><br/>
+    
+    <select name="bgcolor" [(ngModel)]="BackColor" placeholder="Enter a Background-color">
+        <option *ngFor="let color of colors" [value]="color">{{color}}</option>
+    </select><br/>
+    <select name="fontColor" [(ngModel)]="TextFontColor" placeholder="Enter a Font-color">
+       <option *ngFor="let color of colors" [value]="color">{{color}}</option>  
+    </select><br/>
+</div>
+<div>
+    <input [value]="data" [style.font-size]="fontSize+'px'" [style.background-color]="BackColor" [style.color]="TextFontColor" readonly="readonly"/>
+</div>

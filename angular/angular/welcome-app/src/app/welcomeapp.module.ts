@@ -10,6 +10,11 @@ import { SpinnerComponent } from './spinner/spinner.component';
 import { ChangeimageComponent } from './changeimage/changeimage.component';
 import { LoopingComponent } from './looping/looping.component';
 import { GreetingComponent } from './greeting/greeting.component';
+import { TwoWayComponent } from './two-way/two-way.component';
+import { FormsModule } from '@angular/forms';
+import { RadioComponent } from './radio/radio.component';
+import { OutputFormatComponent } from './output-format/output-format.component';
+
 
 @NgModule({
   declarations: [
@@ -20,10 +25,13 @@ import { GreetingComponent } from './greeting/greeting.component';
     SpinnerComponent,
     ChangeimageComponent,
     LoopingComponent,
-    GreetingComponent
+    GreetingComponent,
+    TwoWayComponent,
+    RadioComponent,
+    OutputFormatComponent
   ],
   imports: [
-    BrowserModule,
+    BrowserModule,FormsModule,
     WelcomeAppRoutingModule
   ],
   providers: [],

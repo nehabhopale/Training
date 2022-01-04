@@ -1,0 +1,44 @@
+<style>
+    table 
+    {
+        width: auto;
+        font: 17px Calibri;
+    }
+    table, th, td 
+    {
+        border: solid 1px #DDD;
+        border-collapse: collapse;
+        padding: 2px 3px;
+        text-align: center;
+    }
+ 
+</style>
+<div class="container">    
+    <div *ngIf="ArrayOfStudents().length>0 else elseBlock"> 
+    <table class="table table-striped">    
+        <thead>        
+            <tr>          
+                <th>ID</th>          
+                <th>Cgpa</th>          
+                <th>Name</th>          
+                <th>DateOfBirth</th>        
+            </tr>    
+        </thead>    
+        <tbody>  
+            
+            <tr *ngFor="let student of ArrayOfStudents()" [ngClass]="{'greenColor': (student.cgpa > 7.5), 'yellowColor': (student.cgpa <= 7.5 && student.cgpa > 6), 'redColor': (student.cgpa <= 6)}" > 
+                
+                <td>{{ student.id }}</td>        
+                <td>{{ student.cgpa}}</td>        
+                <td>{{ student.name}}</td>        
+                <td>{{ student.dob}}</td> 
+          
+                
+            </tr> 
+            
+             
+        </tbody>  
+    </table>
+    </div>
+    <ng-template #elseBlock>Student Table is having no data to display</ng-template>  
+</div>

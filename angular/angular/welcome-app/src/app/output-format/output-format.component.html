@@ -3,10 +3,12 @@
     <input type="text" [(ngModel)]="data" placeholder="Enter a text"><br/>
     
     <input type="text" [(ngModel)]="fontSize" placeholder="Enter a Font Size"><br/>
+    backgoundColor:
     
     <select (change)="Change()" name="bgcolor" [(ngModel)]="BackColor" placeholder="Enter a Background-color">
         <option *ngFor="let color of colors" [value]="color">{{color}}</option>
     </select><br/>
+    color:
     <select (change)="Change()" name="fontColor" [(ngModel)]="TextFontColor" placeholder="Enter a Font-color">
        <option *ngFor="let color of colors" [value]="color">{{color}}</option>  
     </select><br/>

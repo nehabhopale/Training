@@ -14,6 +14,7 @@ import { TwoWayComponent } from './two-way/two-way.component';
 import { FormsModule } from '@angular/forms';
 import { RadioComponent } from './radio/radio.component';
 import { OutputFormatComponent } from './output-format/output-format.component';
+import { StudentsComponent } from './students/students.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { OutputFormatComponent } from './output-format/output-format.component';
     GreetingComponent,
     TwoWayComponent,
     RadioComponent,
-    OutputFormatComponent
+    OutputFormatComponent,
+    StudentsComponent
   ],
   imports: [
     BrowserModule,FormsModule,

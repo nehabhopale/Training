@@ -14,5 +14,11 @@ export class OutputFormatComponent implements OnInit {
   constructor() { }
   ngOnInit(): void {
   }
-
+  Change(){
+  if (this.BackColor==this.TextFontColor){
+    alert("Please enter different font and background colors")
+    this.TextFontColor=""
+    //location.reload()
+  }
+}
 }

@@ -1,8 +1,13 @@
 <p>prd-operation works!</p>
+PID:<input type="number" [(ngModel)]="newId"/><br/><br>
+Product Name:<input type="text" [(ngModel)]="newName"/><br/> <br>
+<button (click)="addProduct()" class="btn btn-success"><i class="fa fa-plus"></i>Add New</button><br/><br>
 All Products
 <h1 *ngFor="let prd of Getproducts">{{prd.id}}
     {{prd.name}}
 </h1><br>
 
-<button (click)="addProduct()" class="btn btn-success"><i class="fa fa-plus"></i>Add New</button><br/><br>
-<button (click)="deleteProduct(0)" class="btn btn-success"><i class="fa fa-plus"></i>delete</button><br/>
+deleteId:<input  #prd type="number"  name="prd" /><br/><br>
+
+<!-- <button (click)="addProduct()" class="btn btn-success"><i class="fa fa-plus"></i>Add New</button><br/><br> -->
+<button (click)="deleteProduct(prd.value)" class="btn btn-success"><i class="fa fa-plus"></i>delete</button><br/>

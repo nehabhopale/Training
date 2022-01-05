@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SellingComponent } from './selling/selling.component';
 import { PrdOperationComponent } from './prd-operation/prd-operation.component';
+
+import { FormsModule } from '@angular/forms';
 //import { ProductService } from './ProductService/product.service';
 
 @NgModule({
@@ -17,6 +19,7 @@ import { PrdOperationComponent } from './prd-operation/prd-operation.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule
    // ProductService
   ],
   providers: [],

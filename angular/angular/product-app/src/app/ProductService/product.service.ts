@@ -31,9 +31,9 @@ export class ProductService {
   GetProducts(){
      return this.product
   }
-  AddProduct(Id:number,Name:string){
-   var newPrd={id:Id,name:Name}
-   this.product.push(newPrd)
+  AddProduct(product:Products){
+   //var newPrd={id:Id,name:Name}
+   this.product.push(product)
   }
   GetMaxSoldProduct(){
     var number=this.getRandomInt(1,4)

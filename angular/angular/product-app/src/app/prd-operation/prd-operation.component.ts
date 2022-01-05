@@ -8,6 +8,8 @@ import { ProductService } from '../ProductService/product.service';
 })
 export class PrdOperationComponent implements OnInit {
    Getproducts!:any
+   newId:number=0
+   newName:string=""
   //  prdAfterDel!:any
   //  prdAfterAdd!:any
    //prd!:any
@@ -23,13 +25,13 @@ export class PrdOperationComponent implements OnInit {
    
   }
   deleteProduct(ID:any){
-     this.productService.DeleteProduct(0)
+     this.productService.DeleteProduct(ID)
      this.Getproducts=this.productService.GetProducts()
   }
   
   addProduct(){
-      this.productService.AddProduct(5,"teapack");
-      this.Getproducts=this.productService.GetProducts()
+    var newProduct={id:this.newId,name:this.newName};
+    this.productService.AddProduct(newProduct);
   }
 
 }

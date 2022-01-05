@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
 import { RadioComponent } from './radio/radio.component';
 import { OutputFormatComponent } from './output-format/output-format.component';
 import { StudentsComponent } from './students/students.component';
+import { TestDirective } from './directives/test.directive';
+import{TestingDirective}from './directives/testing.directive'
 
 
 @NgModule({
@@ -30,7 +32,9 @@ import { StudentsComponent } from './students/students.component';
     TwoWayComponent,
     RadioComponent,
     OutputFormatComponent,
-    StudentsComponent
+    StudentsComponent,
+    TestDirective,
+    TestingDirective
   ],
   imports: [
     BrowserModule,FormsModule,

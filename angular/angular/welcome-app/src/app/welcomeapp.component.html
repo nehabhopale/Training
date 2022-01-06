@@ -1,5 +1,7 @@
 <app-header></app-header>
-<h1 class="appTesting">{{name |uppercase}}</h1>
+<!-- <h1 class="appTesting">{{name |uppercase}}</h1> -->
+<h1 *ngIf="condition">{{name |uppercase}}</h1>
+<h2 *appStructural="condition">{{name|lowercase}}</h2>
 <!-- <h1>{{name |lowercase}}</h1>
 <h2>{{todaydate |date:'y/d/M'}}</h2>
 <h2>{{22/7 |number:'3.2-2'}}</h2>
@@ -12,9 +14,10 @@
 <app-changeimage></app-changeimage>
  <app-looping></app-looping>
 <app-greeting></app-greeting> -->
-<!-- <app-two-way></app-two-way>
-<app-radio></app-radio>
+<!-- <app-two-way></app-two-way> -->
+<!-- <app-radio></app-radio>
 <br>
-<app-output-format></app-output-format> -->
+<app-output-format></app-output-format> --> 
+<app-hooks></app-hooks>
 <app-students></app-students>
 <app-footer></app-footer>

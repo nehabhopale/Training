@@ -1,0 +1,9 @@
+<p>hooks works!</p>
+<input type="button" (click)="flag=!flag" value="toggle child">
+<app-child *ngIf="flag" [item]="itemsOfHook" (clickChild)="hookHandler($event)">
+    <div #hookHello>Hokks value</div>
+</app-child>  
+<input type="text" [(ngModel)]="itemsOfHook">
+<!-- sent parent value to child -->
+<!-- first constructor comes (of parent then child) then ngOnInt -->
+<!-- onChnage called befor onint -->

@@ -2,8 +2,10 @@
     one way binding from comp to view {{salary}}
     <br>
     one way binding 
-    <input type="text" [value]="salary">
+    <input type="text" placeholder="enter salary" [value]="salary">
     <br>
     two way
-    <input type="text" [(ngModel)]="salary">
+    <input type="text"  appChecker  placeholder="enter salary" [(ngModel)]="salary">
+   
+    
 </div>

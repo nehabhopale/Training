@@ -7,9 +7,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TwoWayComponent implements OnInit {
 
-  salary:number
+  salary!:string
+ 
   constructor() { 
-    this.salary=1000
+    this.salary="1000"
+    
   }
 
   ngOnInit(): void {

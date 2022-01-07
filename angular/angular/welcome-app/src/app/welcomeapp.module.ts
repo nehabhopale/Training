@@ -22,7 +22,8 @@ import{TestingDirective}from './directives/testing.directive';
 import { StructuralDirective } from './directives/structural.directive';
 import { CheckerDirective } from './directives/checker.directive';
 import { HooksComponent } from './hooks/hooks.component';
-import { ChildComponent } from './child/child.component'
+import { ChildComponent } from './child/child.component';
+import { ObservablesComponent } from './observables/observables.component'
 
 
 @NgModule({
@@ -45,6 +46,7 @@ import { ChildComponent } from './child/child.component'
     CheckerDirective,
     HooksComponent,
     ChildComponent,
+    ObservablesComponent,
     
   ],
   imports: [

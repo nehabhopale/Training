@@ -48,4 +48,6 @@ export class ChildComponent implements OnInit,OnChanges,OnDestroy {
     // console.log("p clicked --------")
     this.clickChild.emit("event emit")
   }
+  
+
 }

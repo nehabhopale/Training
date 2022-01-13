@@ -23,7 +23,11 @@ import { StructuralDirective } from './directives/structural.directive';
 import { CheckerDirective } from './directives/checker.directive';
 import { HooksComponent } from './hooks/hooks.component';
 import { ChildComponent } from './child/child.component';
-import { ObservablesComponent } from './observables/observables.component'
+import { ObservablesComponent } from './observables/observables.component';
+import { RouteComponent } from './route/route.component'
+import { HttpClientModule } from '@angular/common/http';
+import { StarRatingComponent } from './star-rating/star-rating.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -47,11 +51,13 @@ import { ObservablesComponent } from './observables/observables.component'
     HooksComponent,
     ChildComponent,
     ObservablesComponent,
+    RouteComponent,
+    StarRatingComponent,
     
   ],
   imports: [
     BrowserModule,FormsModule, 
-    WelcomeAppRoutingModule
+    WelcomeAppRoutingModule,HttpClientModule, NgbModule 
   ],
   providers: [],
   bootstrap: [WelcomeAppComponent]

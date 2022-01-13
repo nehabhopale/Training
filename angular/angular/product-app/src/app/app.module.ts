@@ -7,6 +7,7 @@ import { SellingComponent } from './selling/selling.component';
 import { PrdOperationComponent } from './prd-operation/prd-operation.component';
 
 import { FormsModule } from '@angular/forms';
+import { CheckerDirective } from './directives/checker.directive';
 //import { ProductService } from './ProductService/product.service';
 
 @NgModule({
@@ -14,6 +15,7 @@ import { FormsModule } from '@angular/forms';
     AppComponent,
     SellingComponent,
     PrdOperationComponent,
+    CheckerDirective,
    // ProductService
   ],
   imports: [

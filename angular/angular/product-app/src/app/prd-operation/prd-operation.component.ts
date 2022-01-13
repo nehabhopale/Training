@@ -32,6 +32,7 @@ export class PrdOperationComponent implements OnInit {
   addProduct(){
     var newProduct={id:this.newId,name:this.newName};
     this.productService.AddProduct(newProduct);
+    console.log(newProduct)
   }
 
 }

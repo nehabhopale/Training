@@ -1,0 +1,13 @@
+<p>route works!</p>
+ <!-- <h2>{{(observe|async)?.counter}}</h2>  -->
+<!-- <h3>{{(observe|async)?.time}}</h3> -->
+<table>
+    <thead>
+        <!-- <th>Name</th> -->
+    </thead>
+    <tbody>
+        <tr *ngFor="let data of CName" [style.background-color]="'yellow'" >
+            <th>{{data}}</th>
+        </tr>
+    </tbody>
+</table>

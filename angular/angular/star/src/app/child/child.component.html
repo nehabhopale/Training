@@ -1,0 +1,36 @@
+<!-- Enter Rating:<input type="number" [(ngModel)]="rating"/> -->
+<h2>Child to Parent </h2>
+<p>Rating-{{rating}}</p>
+
+
+<link
+  rel="stylesheet"
+  href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+  integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+  crossorigin="anonymous"
+/>
+
+<div [style.width]="getOuterDivWidth()" [style.overflow]="visible" > 
+    <div [style.width]="getInnerDivWidth()"  > 
+      <ul class="list-inline rating-list" 
+        *ngFor="let star of stars" style="display: inline-block" >
+        <li (click)="countStar(star)"
+              [ngClass]="{'selected': (star <= rating)}">
+              <i class="fa fa-star"></i>
+        </li> 
+      </ul>
+    </div> 
+</div>
+
+<div  [style.width]="getWidth()"  [style.overflow]="visible">
+  <div [style.width]="getInnerDivWidth()"  >  
+  <span>✰</span>
+  <span>✰</span>
+  <span>✰</span>
+  <span>✰</span>
+  <span>✰</span>
+  
+</div>
+</div>
+
+  

@@ -1,0 +1,39 @@
+
+<div *ngIf="flag" >
+    <h2>Rules</h2>
+    <ul>
+        <li>If you guess correct ball  then it will turn blue</li>
+        <li>If ball id is less than correct id then it will turn green else it will turn red</li>
+        <li>After completion of your  attmpts you can exit or restart the game</li>
+    </ul>
+    <div class="container" >
+        you can select balls in range : 10-50 <br><br>
+        <div class="card-text">
+          <mat-slider min="10" max="50" step="1"  [(ngModel)]="noOfBalls"></mat-slider><br>
+          selected no of balls :{{noOfBalls}}
+        </div>
+    </div>
+    <br>
+    <input type="button" (click)="getBall()" value="toggle to page ">
+   
+</div>
+<br>
+
+<div *ngIf="!flag"> 
+    
+        <h3>TotalAttempts- {{noOfAttempts}}</h3>
+        <!-- <h3>{{attempts}}</h3> -->
+        <h4 *ngIf="!gameStatus">Remaining Attempts- {{remainingAttempts}}</h4>
+        <span  *ngFor="let ball of balls">
+            <button  class="circle" (click)="checkBall(ball)" [style.backgroundColor]="ball.color" [disabled]="ball.clicked">{{ball.id}}</button>
+        </span> 
+        <div *ngIf="gameStatus"> 
+            <button type="button" (click)="restartGame()">Restart</button>&nbsp;
+            <button type="button" (click)="exit()">Exit</button>
+        </div>
+</div>   
+
+
+
+
+

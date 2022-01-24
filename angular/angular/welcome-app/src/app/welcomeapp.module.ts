@@ -11,7 +11,8 @@ import { ChangeimageComponent } from './changeimage/changeimage.component';
 import { LoopingComponent } from './looping/looping.component';
 import { GreetingComponent } from './greeting/greeting.component';
 import { TwoWayComponent } from './two-way/two-way.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+// import { FormsModule } from '@angular/forms';
 // import { NgControl } from '@angular/forms';
 // import {NgControl} from '@angular/common';
 import { RadioComponent } from './radio/radio.component';
@@ -28,6 +29,7 @@ import { RouteComponent } from './route/route.component'
 import { HttpClientModule } from '@angular/common/http';
 import { StarRatingComponent } from './star-rating/star-rating.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { LoginComponent } from './login/login.component';
 
 
 @NgModule({
@@ -53,10 +55,11 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     ObservablesComponent,
     RouteComponent,
     StarRatingComponent,
+    LoginComponent,
     
   ],
   imports: [
-    BrowserModule,FormsModule, 
+    BrowserModule,FormsModule, ReactiveFormsModule,
     WelcomeAppRoutingModule,HttpClientModule, NgbModule 
   ],
   providers: [],

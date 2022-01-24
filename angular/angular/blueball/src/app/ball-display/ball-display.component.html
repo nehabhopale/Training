@@ -1,4 +1,3 @@
-
 <div *ngIf="flag" >
     <h2>Rules</h2>
     <ul>
@@ -27,13 +26,10 @@
         <span  *ngFor="let ball of balls">
             <button  class="circle" (click)="checkBall(ball)" [style.backgroundColor]="ball.color" [disabled]="ball.clicked">{{ball.id}}</button>
         </span> 
-        <div *ngIf="gameStatus"> 
-            <button type="button" (click)="restartGame()">Restart</button>&nbsp;
+         <div *ngIf="gameStatus">  
+            <button type="button" (click)="restartGame()">Restart</button>&nbsp; 
             <button type="button" (click)="exit()">Exit</button>
-        </div>
+        </div> 
 </div>   
-
-
-
 
 

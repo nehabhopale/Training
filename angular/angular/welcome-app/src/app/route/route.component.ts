@@ -22,6 +22,24 @@ export class RouteComponent implements OnInit {
   //     console.log(err)
   //   })
   // }
+
+
+  ////////////////////////////////
+  // this.observe=this.routeService.getDataFromApi()
+  //   this.observe.subscribe((data)=>{
+  //     console.log("data",data)
+  //     // console.log(data.)
+  //     // console.log(" Data ",JSON.parse(data))
+  //     // this.courses=JSON.parse(data)
+  //     for(let c of data){
+  //       this.CName.push(c.CourseName)
+  //     }
+  //     console.log("Course names ",this.CName)
+  //   })
+
+}
+
+show(){
   this.observe=this.routeService.getDataFromApi()
     this.observe.subscribe((data)=>{
       console.log("data",data)
@@ -33,5 +51,5 @@ export class RouteComponent implements OnInit {
       }
       console.log("Course names ",this.CName)
     })
-
-}}
+  }
+}

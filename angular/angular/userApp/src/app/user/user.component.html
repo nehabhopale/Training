@@ -1,0 +1,23 @@
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+       
+            <th>ID</th>
+            <!-- <th>UserId</th> -->
+            <th>FirstName</th>
+            <th>LastName</th>
+            <th>Email</th>
+            <!-- <th>Price</th> -->
+    </thead>
+    <tbody>
+       
+        <tr *ngFor="let user of users"  >
+            <td>{{user.ID}}</td>
+            <!-- <td>{{passport.UID}}</td> -->
+            <td>{{user.FirstName}}</td>
+            <td>{{user.LastName}}</td>
+            <td>{{user.Email}}</td>
+            
+            </tr>
+        </tbody>
+    </table>

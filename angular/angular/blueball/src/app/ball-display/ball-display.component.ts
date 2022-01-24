@@ -92,9 +92,11 @@ export class BallDisplayComponent implements OnInit{
   }
   
   restartGame(){
-    
+    this.gameStatus=false
     this.balls=[];
-    this.noOfAttempts=Math.round(Math.log2(this.noOfBalls));
+    this.remainingAttempts=this.noOfAttempts
+    this.attempts=0
+    // this.noOfAttempts=Math.round(Math.log2(this.noOfBalls));
     for(let i=1;i<=this.noOfBalls;i++){
       this.balls.push({id:i,description:"ball"+i,color:"pink"})
     }

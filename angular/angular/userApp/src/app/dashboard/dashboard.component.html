@@ -1,0 +1,18 @@
+
+<ul ngbNav #nav="ngbNav" class="nav-tabs">
+   <li ngbNavItem class="nav-item"  [routerLink]="['/dashboard/course']">
+      <a ngbNavLink>Courses</a>
+   </li>
+   <li ngbNavItem class="nav-item"  [routerLink]="['/dashboard/hobby']">
+    <a ngbNavLink>Hobbies</a>
+   </li> 
+   <li ngbNavItem class="nav-item"  [routerLink]="['/dashboard/passport']">
+      <a ngbNavLink>Passports</a>
+   </li> 
+   <li ngbNavItem class="nav-item"  [routerLink]="['/dashboard/user']">
+      <a ngbNavLink>Users</a>
+   </li> 
+  
+</ul>
+<div [ngbNavOutlet]="nav"></div>
+<router-outlet></router-outlet>

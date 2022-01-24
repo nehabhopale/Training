@@ -6,6 +6,7 @@
         <!-- <th>Name</th> -->
     </thead>
     <tbody>
+        <button (click)="show()">get course</button> 
         <tr *ngFor="let data of CName" [style.background-color]="'yellow'" >
             <th>{{data}}</th>
         </tr>

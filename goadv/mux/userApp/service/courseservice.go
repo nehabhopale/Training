@@ -37,6 +37,39 @@ func (c *CourseService) AddCourse(course *model.Course) error {
 	return nil
 	
 }
+func (c *CourseService) GetCourseFromName(out *model.Course, name string) (string,error) {
+	uow:=repo.NewUnitOfWork(c.DB,true)
+	var queryp []repo.QueryProcessor
+	 var preload []string
+	queryp = append(queryp, repo.PreloadAssociations(preload))
+	queryp = append(queryp, repo.Filter("course_name=?", name))
+	err := c.Repo.GetFirst(uow, out, queryp)
+	if err != nil {
+		uow.Complete()
+		return "",err
+	}
+	uow.Commit()
+	c.Logger.Info().Msg("Get course from name ")
+	return out.CourseName,nil
+}
+func (c *CourseService) GetCourseFromNamePrize(out *model.Course, name string,prize int ) (string,int,error) {
+	uow:=repo.NewUnitOfWork(c.DB,true)
+	var queryp []repo.QueryProcessor
+	 var preload []string
+	queryp = append(queryp, repo.PreloadAssociations(preload))
+	queryp = append(queryp, repo.Filter("course_name=?", name))
+	queryp = append(queryp, repo.Filter("prize=?", prize))
+	err := c.Repo.GetFirst(uow, out, queryp)
+	if err != nil {
+		uow.Complete()
+		fmt.Println(err)
+		return "",-1,err
+	}
+	uow.Commit()
+	c.Logger.Info().Msg("Get course from name ")
+	return out.CourseName,out.Prize,nil
+}
+
 
 func(c *CourseService) GetAllCourses(out *[]model.Course,limit int,offset int )error {
 	uow:=repo.NewUnitOfWork(c.DB,true)
@@ -79,6 +112,8 @@ func (c *CourseService) UpdateCourse(entity model.Course) error{
 	uow.Commit()
 	return nil
 }
+
+
 
 func (c *CourseService) DeleteCourse(entity model.Course)error  {
 	uow:=repo.NewUnitOfWork(c.DB,false)

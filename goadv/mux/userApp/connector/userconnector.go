@@ -9,7 +9,7 @@ import (
 	handler"pass/handler"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
-	//"fmt"
+	"fmt"
 
 )
 
@@ -17,12 +17,14 @@ type userConnector struct{
 	handler  *handler.Handler
 	userService     *service.UserService
 	passportService *service.PassportService
+	hobbyService *service.HobbyService
 }
-func NewUserConnector(handler *handler.Handler,userService *service.UserService, passportService *service.PassportService) *userConnector {
+func NewUserConnector(handler *handler.Handler,userService *service.UserService, passportService *service.PassportService,hobbyService *service.HobbyService) *userConnector {
 	return &userConnector{
 		handler:handler,
 		userService:     userService,
 		passportService: passportService,
+		hobbyService:hobbyService	,
 	}
 }
 
@@ -65,7 +67,19 @@ func(u *userConnector) addUser(w http.ResponseWriter, r *http.Request){
 	json.NewDecoder(r.Body).Decode(&user)
 	pass,_:=service.HashPassword(user.Password)
 	user.Password=pass
-	u.userService.AddUser(&user)
+	email,_:=u.userService.GetUserFromEmail(&user,user.Email)
+	if email!=""{
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode("email already exist")
+		return 
+	}
+	err:=u.userService.AddUser(&user)
+	if err!=nil{
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode("eror while adding user")
+		return 
+
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
@@ -138,10 +152,22 @@ func(u *userConnector)  deleteUser(w http.ResponseWriter, r *http.Request){
 			json.NewEncoder(w).Encode("user doesn't exists")
 			return 
 		}
+		
+
+		var user model.User
+		str1:=[]string{"Passport","Courses","Hobbies"}
+		u.userService.GetUserFromId(&user, id,str1)
+		fmt.Println(user)
+		u.passportService.DeletePassport(user.Passport.ID)
+		fmt.Println(user.Hobbies)
+		for _, hobby := range user.Hobbies {
+			u.hobbyService.DeleteHobby(hobby)
+		}
 		var deleteUser model.User
 		deleteUser.ID = id
 		json.NewDecoder(r.Body).Decode(&deleteUser)
 		u.userService.DeleteUser(deleteUser)
+
 		json.NewEncoder(w).Encode("deleteUser")
 	
 }

@@ -98,7 +98,7 @@ func (p *PassportService) GetPassportByUserId(out *model.Passport, userId uuid.U
 func (p *PassportService) DeletePassport(passId uuid.UUID) error {
 	uow := repo.NewUnitOfWork(p.DB, false)
 	DeletedPassport := model.Passport{Base: model.Base{ID: passId}}
-	err := p.Repo.Delete(uow, &DeletedPassport)
+	err := p.Repo.Delete(uow, DeletedPassport)
 	if err != nil {
 		uow.Complete()
 		return err
@@ -106,6 +106,17 @@ func (p *PassportService) DeletePassport(passId uuid.UUID) error {
 	uow.Commit()
 	return nil
 }
+// func  (p *PassportService)DeletePass( entity model.Passport) error{
+// 	uow:=repo.NewUnitOfWork(p.DB,false)
+	
+// 	err1:=p.Repo.HardDelete(uow,entity)
+// 	if err1!=nil{
+// 		uow.Complete()
+// 		return err1
+// 	}
+// 	uow.Commit()
+// 	return nil
+// }
 func (p *PassportService)CheckPassport(id uuid.UUID)bool {
 	var passports model.Passport
 	var str1 []string

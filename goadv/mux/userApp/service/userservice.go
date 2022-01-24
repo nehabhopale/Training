@@ -8,6 +8,7 @@ uuid"github.com/satori/go.uuid"
 "golang.org/x/crypto/bcrypt"
 "github.com/rs/zerolog"
 "net/mail"
+//"reflect"
 )
 
 
@@ -32,7 +33,11 @@ func (u *UserService)AddUser(user *model.User)error {
 		var queryp []repo.QueryProcessor
 		fmt.Println("course name is ",course.CourseName)
 		queryp = append(queryp, repo.Filter("course_name=?", course.CourseName))
-		u.Repo.GetFirst(uow, &c, queryp)
+		err:=u.Repo.GetFirst(uow, &c, queryp)
+		if err!=nil{
+			fmt.Println("for the course", course.CourseName,"u r looking for ",err)
+			return err
+		}
 		courses = append(courses, c)
 	}
 	user.Courses = courses
@@ -98,25 +103,25 @@ func (u *UserService)GetUserFromId(out interface{}, ID uuid.UUID, preloadAssocia
 	return nil
 
 }
-func (u *UserService) GetUserFromEmail(out *model.User, email string) error {
+func (u *UserService) GetUserFromEmail(out *model.User, email string) (string,error) {
 	uow:=repo.NewUnitOfWork(u.DB,true)
 	var queryp []repo.QueryProcessor
-	preload:=[]string{"Passport","Courses"}
+	 var preload []string
 	queryp = append(queryp, repo.PreloadAssociations(preload))
 	queryp = append(queryp, repo.Filter("email=?", email))
 	err := u.Repo.GetFirst(uow, out, queryp)
 	if err != nil {
 		uow.Complete()
-		return err
+		return "",err
 	}
 	uow.Commit()
 	u.Logger.Info().Msg("Get  users from email")
-	return nil
+	return out.Email,nil
 }
 
 func (u *UserService) GetPasswordFromEmail(email string) (string,bool){
 	var user model.User
-	err:=u.GetUserFromEmail(&user,email)
+	_,err:=u.GetUserFromEmail(&user,email)
 	if err!=nil{
 		return "" ,false
 	}
@@ -149,14 +154,14 @@ func (u *UserService) UpdateUser( entity *model.User) error{ //becaz db.model(&U
 func  (u *UserService)DeleteUser( entity model.User) error{
 	uow:=repo.NewUnitOfWork(u.DB,false)
 	
-	err1:=u.Repo.Delete(uow,entity)
+	err1:=u.Repo.HardDelete(uow,entity)
 	if err1!=nil{
 		uow.Complete()
 		return err1
 	}
+	u.Repo.Clear(uow,&entity,"courses")
 	uow.Commit()
 	return nil
-
 }
 
 func (u *UserService) GetUsersCount() int {

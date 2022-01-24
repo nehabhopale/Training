@@ -1,49 +1,55 @@
-
 package ex
+
 //Repository represents generic interface for interacting with DB
-import (uuid"github.com/satori/go.uuid"
-"github.com/jinzhu/gorm")
+import (
+	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
+)
+
 type Repository interface {
-    Get(uow *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociations []string,primaryKeyName string) error
-    GetFirst(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
-    GetAll(uow *UnitOfWork, out interface{}, preloadAssociations []string) error
-    GetAllTenant(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor)error
-    GetAllForTenant(uow *UnitOfWork, out interface{}, tenantID uuid.UUID, preloadAssociations []string) error
-	Count(uow *UnitOfWork, entity interface{},count interface{}) error
-    Add(uow *UnitOfWork, out interface{}) error
-    Update(uow *UnitOfWork, out interface{}) error
-    Delete(uow *UnitOfWork, out interface{}) error
-	First(uow *UnitOfWork, out interface{}, id uuid.UUID) error 
+	Get(uow *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociations []string, primaryKeyName string) error
+	GetFirst(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
+	GetAll(uow *UnitOfWork, out interface{}, preloadAssociations []string) error
+	GetAllTenant(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
+	GetAllForTenant(uow *UnitOfWork, out interface{}, tenantID uuid.UUID, preloadAssociations []string) error
+	Getall(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
+	Count(uow *UnitOfWork, entity interface{}, count interface{}) error
+	Add(uow *UnitOfWork, out interface{}) error
+	Update(uow *UnitOfWork, out interface{}) error
+	Delete(uow *UnitOfWork, out interface{}) error
+	HardDelete(uow *UnitOfWork, entity interface{}) error
+	Clear(uow *UnitOfWork, entity interface{}, name string) error
+	First(uow *UnitOfWork, out interface{}, id uuid.UUID) error
 }
 
 // UnitOfWork represents a connection
 type UnitOfWork struct {
-    DB        *gorm.DB
-    committed bool
-    readOnly  bool
+	DB        *gorm.DB
+	committed bool
+	readOnly  bool
 }
 
 // NewUnitOfWork creates new UnitOfWork
 func NewUnitOfWork(db *gorm.DB, readOnly bool) *UnitOfWork {
-    if readOnly {
-        return &UnitOfWork{DB: db.New(), committed: false, readOnly: true}
-    }
-    return &UnitOfWork{DB: db.New().Begin(), committed: false, readOnly: false}
+	if readOnly {
+		return &UnitOfWork{DB: db.New(), committed: false, readOnly: true}
+	}
+	return &UnitOfWork{DB: db.New().Begin(), committed: false, readOnly: false}
 }
 
 // Complete marks end of unit of work
 func (uow *UnitOfWork) Complete() {
-    if !uow.committed && !uow.readOnly {
-        uow.DB.Rollback()
-    }
+	if !uow.committed && !uow.readOnly {
+		uow.DB.Rollback()
+	}
 }
 
 // Commit the transaction
 func (uow *UnitOfWork) Commit() {
-    if !uow.readOnly {
-        uow.DB.Commit()
-    }
-    uow.committed = true
+	if !uow.readOnly {
+		uow.DB.Commit()
+	}
+	uow.committed = true
 }
 
 // GormRepository implements Repository
@@ -52,7 +58,7 @@ type GormRepository struct {
 
 // NewRepository returns a new repository object
 func NewRepository() Repository {
-    return &GormRepository{}
+	return &GormRepository{}
 }
 func Paginate(limit int, offset int, count *int) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
@@ -70,6 +76,7 @@ func Paginate(limit int, offset int, count *int) QueryProcessor {
 		return db, nil
 	}
 }
+
 // GetAll retrieves all the records for a specified entity and returns it  for pagination (same as get all)
 func (repository *GormRepository) GetAllTenant(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
 	db := uow.DB
@@ -86,7 +93,7 @@ func (repository *GormRepository) GetAllTenant(uow *UnitOfWork, out interface{},
 }
 
 // QueryProcessor allows to modify the query before it is executed
-type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB,error)
+type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
 //Filter will filter the results
 func Filter(condition string, args ...interface{}) QueryProcessor {
@@ -97,7 +104,7 @@ func Filter(condition string, args ...interface{}) QueryProcessor {
 }
 func (repository *GormRepository) First(uow *UnitOfWork, out interface{}, id uuid.UUID) error {
 	db := uow.DB
-	if err := db.First(out,id).Error; err != nil {
+	if err := db.First(out, id).Error; err != nil {
 		return (err)
 	}
 	return nil
@@ -119,6 +126,7 @@ func (repository *GormRepository) GetFirst(uow *UnitOfWork, out interface{}, que
 	}
 	return nil
 }
+
 // PreloadAssociations specified associations to be preloaded
 func PreloadAssociations(preloadAssociations []string) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
@@ -132,46 +140,71 @@ func PreloadAssociations(preloadAssociations []string) QueryProcessor {
 }
 
 // Get a record for specified entity with specific id
-func (repository *GormRepository) Get(uow *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociations []string,primaryKeyName string) error {
-    db := uow.DB
-    for _, association := range preloadAssociations {
-        db = db.Preload(association)
-    }
-    return db.Debug().First(out, primaryKeyName+" = ?", id).Error
+func (repository *GormRepository) Get(uow *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociations []string, primaryKeyName string) error {
+	db := uow.DB
+	for _, association := range preloadAssociations {
+		db = db.Preload(association)
+	}
+	return db.Debug().First(out, primaryKeyName+" = ?", id).Error
+}
+
+// GetAll retrieves all the records for a specified entity and returns it
+func (repository *GormRepository) Getall(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
+	db := uow.DB
+	if queryProcessors != nil {
+		var err error
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, out)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return db.Debug().Find(out).Error
 }
 
 // GetAll retrieves all the records for a specified entity and returns it
 func (repository *GormRepository) GetAll(uow *UnitOfWork, out interface{}, preloadAssociations []string) error {
-    db := uow.DB
-    for _, association := range preloadAssociations {
-        db = db.Preload(association)
-    }
-    return db.Debug().Find(out).Error
+	db := uow.DB
+	for _, association := range preloadAssociations {
+		db = db.Preload(association)
+	}
+	return db.Debug().Find(out).Error
 }
 
 // GetAllForTenant returns all objects of specified tenantID
 func (repository *GormRepository) GetAllForTenant(uow *UnitOfWork, out interface{}, tenantID uuid.UUID, preloadAssociations []string) error {
-    db := uow.DB
-    for _, association := range preloadAssociations {
-        db = db.Preload(association)
-    }
-    return db.Where("tenantID = ?", tenantID).Find(out).Error
+	db := uow.DB
+	for _, association := range preloadAssociations {
+		db = db.Preload(association)
+	}
+	return db.Where("tenantID = ?", tenantID).Find(out).Error
 }
 
 // Add specified Entity
 func (repository *GormRepository) Add(uow *UnitOfWork, entity interface{}) error {
-    return uow.DB.Debug().Create(entity).Error
+	return uow.DB.Debug().Create(entity).Error
 }
+
 //count specified entity
-func (repository *GormRepository) Count(uow *UnitOfWork, entity interface{},count interface{}) error {
-    return uow.DB.Debug().Model(entity).Count(count).Error
+func (repository *GormRepository) Count(uow *UnitOfWork, entity interface{}, count interface{}) error {
+	return uow.DB.Debug().Model(entity).Count(count).Error
 }
+
 // Update specified Entity
 func (repository *GormRepository) Update(uow *UnitOfWork, entity interface{}) error {
-    return uow.DB.Debug().Model(entity).Update(entity).Error
+	return uow.DB.Debug().Model(entity).Update(entity).Error
 }
 
 // Delete specified Entity
 func (repository *GormRepository) Delete(uow *UnitOfWork, entity interface{}) error {
-    return uow.DB.Debug().Delete(entity).Error
+	return uow.DB.Debug().Delete(entity).Error
+}
+
+//hard delete
+func (repository *GormRepository) HardDelete(uow *UnitOfWork, entity interface{}) error {
+	return uow.DB.Debug().Delete(entity).Error
+}
+func (repository *GormRepository) Clear(uow *UnitOfWork, entity interface{}, name string) error {
+	return uow.DB.Debug().Model(entity).Association(name).Clear().Error
 }

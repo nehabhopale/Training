@@ -31,7 +31,15 @@ func Newhandler(userService *service.UserService) *Handler {
 		userService: userService,
 	}
 }
+func (h *Handler) GetUserFromEmail(email string) (model.User, bool) {
+	var user model.User
+	_, err := h.userService.GetUserFromEmail(&user, email)
+	if err != nil {
+		return model.User{}, false
+	}
+	return user, true
 
+}
 func (h *Handler) GetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -48,9 +56,17 @@ func (h *Handler) GetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("email ", email)
 	log.Println("password", password)
 
+	user, ok := h.GetUserFromEmail(email)
+	if ok {
+		password = password + user.FirstName + user.LastName
+		// fmt.Println("///////user////", password)
+	}
+
 	if userPassHash, ok := h.userService.GetPasswordFromEmail(email); ok {
+		// fmt.Println("insideee okkkkkkkkkk")
 
 		if service.CheckPasswordHash(password, userPassHash) {
+			// fmt.Println("inside checkingggg")
 			// Create a claims map
 			claims := jwt.MapClaims{
 				"email":    email,
